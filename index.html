@@ -253,6 +253,39 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
 .rank-item .rank-bar-fill{height:100%;border-radius:3px;transition:width .6s ease}
 .rank-item .rank-amount{font-family:var(--num-font);font-size:12px;font-weight:600;flex-shrink:0}
 
+/* 云端同步 */
+.sync-btn{width:34px;height:34px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow);color:var(--text-secondary);transition:all .2s;position:relative}
+.sync-btn:active{transform:scale(.92)}
+.sync-btn svg{width:18px;height:18px}
+.sync-btn.syncing{animation:spin 1.5s linear infinite}
+.sync-btn.has-config{color:var(--primary)}
+.sync-dot{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:var(--income);border:2px solid var(--bg)}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+.sync-panel{width:300px}
+.sync-status{background:var(--bg);border-radius:12px;padding:14px;margin-bottom:14px}
+.sync-status-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:12px}
+.sync-status-row:last-child{margin-bottom:0}
+.sync-status-row .label{color:var(--text-muted)}
+.sync-status-row .val{font-family:var(--num-font);font-weight:600;color:var(--text)}
+.sync-status-row .val.ok{color:var(--income)}
+.sync-status-row .val.warn{color:var(--accent)}
+.sync-actions{display:flex;flex-direction:column;gap:8px}
+.sync-action-btn{width:100%;padding:12px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.sync-action-btn:active{opacity:.7}
+.sync-action-btn.upload{background:var(--primary);color:#fff}
+.sync-action-btn.download{background:var(--income-bg);color:var(--income)}
+.sync-action-btn.settings{background:var(--bg);color:var(--text-secondary)}
+.sync-action-btn svg{width:16px;height:16px}
+.sync-action-btn:disabled{opacity:.5;cursor:not-allowed}
+
+.sync-form-group{margin-bottom:14px}
+.sync-form-group label{display:block;font-size:12px;color:var(--text-secondary);margin-bottom:6px;font-weight:500}
+.sync-form-group input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;font-size:14px;outline:none;background:var(--bg);font-family:inherit;box-sizing:border-box}
+.sync-form-group input:focus{border-color:var(--primary);background:var(--card)}
+.sync-form-group .hint{font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.4}
+.sync-form-group .hint a{color:var(--primary);text-decoration:none}
+
 /* Toast */
 .toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.9);background:rgba(0,0,0,.8);color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;z-index:9999;opacity:0;pointer-events:none;transition:all .25s}
 .toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
@@ -301,6 +334,9 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
     </div>
     <h1 id="topbarTitle">日常记账</h1>
     <div class="right-actions">
+      <div class="icon-btn" id="syncBtn" title="云端同步" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path><path d="M16 16h5v5"></path></svg>
+      </div>
       <div class="icon-btn" id="importBtn" title="导入数据" style="display:none">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
       </div>
@@ -507,6 +543,61 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
   </div>
 </div>
 
+<!-- 云端同步面板 -->
+<div class="modal-overlay" id="syncModal">
+  <div class="modal sync-panel">
+    <div class="modal-header"><h3>云端同步</h3><div class="modal-close" id="syncClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div></div>
+    <div class="modal-body">
+      <div class="sync-status" id="syncStatus">
+        <div class="sync-status-row"><span class="label">同步状态</span><span class="val" id="syncStateVal">未配置</span></div>
+        <div class="sync-status-row"><span class="label">仓库</span><span class="val" id="syncRepoVal">-</span></div>
+        <div class="sync-status-row"><span class="label">最后同步</span><span class="val" id="syncTimeVal">从未</span></div>
+        <div class="sync-status-row"><span class="label">本地记录</span><span class="val" id="syncLocalCount">0 条</span></div>
+      </div>
+      <div class="sync-actions">
+        <button class="sync-action-btn upload" id="uploadBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          同步到云端
+        </button>
+        <button class="sync-action-btn download" id="downloadBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          从云端恢复
+        </button>
+        <button class="sync-action-btn settings" id="syncSettingsBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          GitHub 设置
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GitHub 设置弹窗 -->
+<div class="modal-overlay" id="gitSettingsModal">
+  <div class="modal">
+    <div class="modal-header"><h3>GitHub 同步设置</h3><div class="modal-close" id="gitSettingsClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div></div>
+    <div class="modal-body">
+      <div class="sync-form-group">
+        <label>GitHub 用户名</label>
+        <input type="text" id="gitUserInput" placeholder="例如 yorkchung0409">
+      </div>
+      <div class="sync-form-group">
+        <label>仓库名</label>
+        <input type="text" id="gitRepoInput" placeholder="例如 expense-tracker">
+      </div>
+      <div class="sync-form-group">
+        <label>Personal Access Token</label>
+        <input type="password" id="gitTokenInput" placeholder="ghp_xxxxxxxxxxxx">
+        <div class="hint">在 GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) 生成，勾选 <b>repo</b> 权限。<br>Token 仅存在本地浏览器，不会上传到任何第三方。</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn cancel" id="gitSettingsCancel">取消</button>
+      <button class="modal-btn confirm" id="gitSettingsSave">保存</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
 'use strict';
@@ -656,18 +747,22 @@ function switchView(view){
   const back=document.getElementById('backBtn');
   const title=document.getElementById('topbarTitle');
   const importBtn=document.getElementById('importBtn');
+  const syncBtn=document.getElementById('syncBtn');
 
   if(view==='add'){
     back.style.display='flex';
     title.textContent=state.editingId?'编辑记录':'记一笔';
     importBtn.style.display='none';
+    syncBtn.style.display='none';
   }else if(view==='bill'){
     back.style.display='flex';
     title.textContent='账单';
     importBtn.style.display='none';
+    syncBtn.style.display='none';
   }else{
     back.style.display='none';
     importBtn.style.display=view==='calendar'?'flex':'none';
+    syncBtn.style.display=view==='calendar'?'flex':'none';
     if(view==='calendar')title.textContent='日常记账';
     else if(view==='stats')title.textContent='统计';
   }
@@ -1539,6 +1634,178 @@ function renderCatDropdown(){
   });
 }
 
+// ========== 云端同步（GitHub） ==========
+const GIT_CONFIG_KEY='expense-tracker-git-config';
+const DATA_FILE='data.json';
+
+let gitConfig={user:'',repo:'',token:'',lastSync:null};
+
+function loadGitConfig(){
+  try{
+    const raw=localStorage.getItem(GIT_CONFIG_KEY);
+    if(raw){const d=JSON.parse(raw);gitConfig=Object.assign(gitConfig,d)}
+  }catch(e){}
+}
+function saveGitConfig(){
+  try{localStorage.setItem(GIT_CONFIG_KEY,JSON.stringify(gitConfig))}catch(e){}
+}
+function hasGitConfig(){return !!(gitConfig.user&&gitConfig.repo&&gitConfig.token)}
+
+function updateSyncBtn(){
+  const btn=document.getElementById('syncBtn');
+  if(!btn)return;
+  btn.style.display='flex';
+  btn.classList.toggle('has-config',hasGitConfig());
+}
+
+function openSyncModal(){
+  updateSyncStatus();
+  document.getElementById('syncModal').classList.add('show');
+}
+function updateSyncStatus(){
+  const stateEl=document.getElementById('syncStateVal');
+  const repoEl=document.getElementById('syncRepoVal');
+  const timeEl=document.getElementById('syncTimeVal');
+  const countEl=document.getElementById('syncLocalCount');
+  if(hasGitConfig()){
+    stateEl.textContent='已配置';
+    stateEl.className='val ok';
+    repoEl.textContent=gitConfig.user+'/'+gitConfig.repo;
+  }else{
+    stateEl.textContent='未配置';
+    stateEl.className='val warn';
+    repoEl.textContent='-';
+  }
+  timeEl.textContent=gitConfig.lastSync?new Date(gitConfig.lastSync).toLocaleString('zh-CN'):'从未';
+  countEl.textContent=state.records.length+' 条';
+  document.getElementById('uploadBtn').disabled=!hasGitConfig();
+  document.getElementById('downloadBtn').disabled=!hasGitConfig();
+}
+
+// base64编码（支持中文）
+function b64encode(str){
+  const bytes=new TextEncoder().encode(str);
+  let bin='';
+  bytes.forEach(b=>bin+=String.fromCharCode(b));
+  return btoa(bin);
+}
+function b64decode(b64){
+  const bin=atob(b64);
+  const bytes=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
+async function uploadToCloud(){
+  if(!hasGitConfig()){showToast('请先配置GitHub');return}
+  const btn=document.getElementById('uploadBtn');
+  btn.disabled=true;
+  btn.textContent='同步中...';
+  try{
+    const data={
+      version:1,
+      lastSync:new Date().toISOString(),
+      records:state.records,
+      expenseCats:state.expenseCats,
+      incomeCats:state.incomeCats
+    };
+    const content=b64encode(JSON.stringify(data,null,2));
+    // 先获取现有文件的sha
+    let sha=null;
+    try{
+      const resp=await fetch('https://api.github.com/repos/'+gitConfig.user+'/'+gitConfig.repo+'/contents/'+DATA_FILE,{
+        headers:{'Authorization':'token '+gitConfig.token,'Accept':'application/vnd.github.v3+json'}
+      });
+      if(resp.ok){
+        const j=await resp.json();
+        sha=j.sha;
+      }
+    }catch(e){}
+    // 提交文件
+    const body={message:'sync: '+new Date().toLocaleString('zh-CN'),content:content};
+    if(sha)body.sha=sha;
+    const resp=await fetch('https://api.github.com/repos/'+gitConfig.user+'/'+gitConfig.repo+'/contents/'+DATA_FILE,{
+      method:'PUT',
+      headers:{'Authorization':'token '+gitConfig.token,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    if(!resp.ok){
+      const err=await resp.json().catch(()=>({message:'HTTP '+resp.status}));
+      throw new Error(err.message||'上传失败');
+    }
+    gitConfig.lastSync=new Date().toISOString();
+    saveGitConfig();
+    showToast('已同步到云端');
+    updateSyncStatus();
+  }catch(e){
+    showToast('同步失败：'+e.message);
+  }finally{
+    btn.disabled=false;
+    btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>同步到云端';
+  }
+}
+
+async function downloadFromCloud(){
+  if(!hasGitConfig()){showToast('请先配置GitHub');return}
+  const btn=document.getElementById('downloadBtn');
+  btn.disabled=true;
+  btn.textContent='恢复中...';
+  try{
+    const resp=await fetch('https://api.github.com/repos/'+gitConfig.user+'/'+gitConfig.repo+'/contents/'+DATA_FILE,{
+      headers:{'Authorization':'token '+gitConfig.token,'Accept':'application/vnd.github.v3+json'}
+    });
+    if(!resp.ok){
+      if(resp.status===404)throw new Error('云端暂无数据');
+      throw new Error('HTTP '+resp.status);
+    }
+    const j=await resp.json();
+    const raw=b64decode(j.content);
+    const data=JSON.parse(raw);
+    if(!data.records||!Array.isArray(data.records))throw new Error('数据格式错误');
+    // 确认覆盖
+    showConfirm('恢复云端数据','将用云端数据覆盖本地当前数据（'+state.records.length+' 条），云端有 '+data.records.length+' 条记录。确定恢复吗？',function(){
+      state.records=data.records||[];
+      state.expenseCats=data.expenseCats&&data.expenseCats.length?data.expenseCats:JSON.parse(JSON.stringify(DEFAULT_EXPENSE));
+      state.incomeCats=data.incomeCats&&data.incomeCats.length?data.incomeCats:JSON.parse(JSON.stringify(DEFAULT_INCOME));
+      state.records.forEach(r=>{if(!r.type)r.type='expense'});
+      saveData();
+      gitConfig.lastSync=data.lastSync||new Date().toISOString();
+      saveGitConfig();
+      showToast('已从云端恢复 '+state.records.length+' 条记录');
+      updateSyncStatus();
+      if(state.currentView==='calendar')renderCalendar();
+      else if(state.currentView==='stats')renderStats();
+      else if(state.currentView==='bill')renderBill();
+    });
+  }catch(e){
+    showToast('恢复失败：'+e.message);
+  }finally{
+    btn.disabled=false;
+    btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>从云端恢复';
+  }
+}
+
+function openGitSettings(){
+  document.getElementById('gitUserInput').value=gitConfig.user||'';
+  document.getElementById('gitRepoInput').value=gitConfig.repo||'';
+  document.getElementById('gitTokenInput').value=gitConfig.token||'';
+  document.getElementById('gitSettingsModal').classList.add('show');
+}
+function saveGitSettings(){
+  const user=document.getElementById('gitUserInput').value.trim();
+  const repo=document.getElementById('gitRepoInput').value.trim();
+  const token=document.getElementById('gitTokenInput').value.trim();
+  if(!user||!repo||!token){showToast('请填写完整');return}
+  gitConfig.user=user;
+  gitConfig.repo=repo;
+  gitConfig.token=token;
+  saveGitConfig();
+  updateSyncBtn();
+  updateSyncStatus();
+  document.getElementById('gitSettingsModal').classList.remove('show');
+  showToast('设置已保存');
+}
+
 // 事件绑定
 function bindEvents(){
   // 底部导航
@@ -1685,14 +1952,32 @@ function bindEvents(){
   document.getElementById('importCancelBtn').addEventListener('click',()=>document.getElementById('importModal').classList.remove('show'));
   document.getElementById('importConfirmBtn').addEventListener('click',confirmImport);
   document.getElementById('importModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
+
+  // 云端同步
+  document.getElementById('syncBtn').addEventListener('click',openSyncModal);
+  document.getElementById('syncClose').addEventListener('click',()=>document.getElementById('syncModal').classList.remove('show'));
+  document.getElementById('syncModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
+  document.getElementById('uploadBtn').addEventListener('click',uploadToCloud);
+  document.getElementById('downloadBtn').addEventListener('click',downloadFromCloud);
+  document.getElementById('syncSettingsBtn').addEventListener('click',function(){
+    document.getElementById('syncModal').classList.remove('show');
+    openGitSettings();
+  });
+  // GitHub设置
+  document.getElementById('gitSettingsClose').addEventListener('click',()=>document.getElementById('gitSettingsModal').classList.remove('show'));
+  document.getElementById('gitSettingsCancel').addEventListener('click',()=>document.getElementById('gitSettingsModal').classList.remove('show'));
+  document.getElementById('gitSettingsSave').addEventListener('click',saveGitSettings);
+  document.getElementById('gitSettingsModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
 }
 
 // 初始化
 function init(){
   loadData();
+  loadGitConfig();
   bindEvents();
   renderCalendar();
   document.getElementById('importBtn').style.display='flex';
+  updateSyncBtn();
 }
 init();
 })();

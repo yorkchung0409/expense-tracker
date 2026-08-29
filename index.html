@@ -1974,6 +1974,12 @@ function bindEvents(){
 function init(){
   loadData();
   loadGitConfig();
+  // URL参数自动配置
+  try{
+    const params=new URLSearchParams(window.location.search);
+    const pu=params.get('git_user'),pr=params.get('git_repo'),pt=params.get('git_token');
+    if(pu&&pr&&pt){gitConfig.user=pu;gitConfig.repo=pr;gitConfig.token=pt;saveGitConfig();window.history.replaceState({},document.title,window.location.pathname);setTimeout(()=>showToast('GitHub配置已自动完成'),500)}
+  }catch(e){}
   bindEvents();
   renderCalendar();
   document.getElementById('importBtn').style.display='flex';

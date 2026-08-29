@@ -1975,11 +1975,19 @@ function init(){
   loadData();
   loadGitConfig();
   // URL参数自动配置
-  try{
-    const params=new URLSearchParams(window.location.search);
-    const pu=params.get('git_user'),pr=params.get('git_repo'),pt=params.get('git_token');
-    if(pu&&pr&&pt){gitConfig.user=pu;gitConfig.repo=pr;gitConfig.token=pt;saveGitConfig();window.history.replaceState({},document.title,window.location.pathname);setTimeout(()=>showToast('GitHub配置已自动完成'),500)}
-  }catch(e){}
+  const _params=new URLSearchParams(window.location.search);
+  const _pu=_params.get('git_user'),_pr=_params.get('git_repo'),_pt=_params.get('git_token');
+  if(_pu&&_pr&&_pt){
+    gitConfig.user=_pu;gitConfig.repo=_pr;gitConfig.token=_pt;
+    try{localStorage.setItem('expense-tracker-git-config',JSON.stringify(gitConfig))}catch(_e){}
+    const _verify=localStorage.getItem('expense-tracker-git-config');
+    if(_verify&&JSON.parse(_verify).token===_pt){
+      window.history.replaceState({},document.title,window.location.pathname);
+      setTimeout(function(){showToast('GitHub配置已自动完成')},500);
+    }else{
+      setTimeout(function(){showToast('配置保存失败，请手动设置')},500);
+    }
+  }
   bindEvents();
   renderCalendar();
   document.getElementById('importBtn').style.display='flex';

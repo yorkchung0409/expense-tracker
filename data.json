@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "lastSync": "2026-08-29T08:25:06.187Z",
+  "records": [],
+  "expenseCats": [
+    {
+      "id": "food",
+      "name": "餐饮",
+      "color": "#E76F51",
+      "icon": "food",
+      "custom": false
+    },
+    {
+      "id": "transport",
+      "name": "交通",
+      "color": "#2A9D8F",
+      "icon": "transport",
+      "custom": false
+    },
+    {
+      "id": "shopping",
+      "name": "购物",
+      "color": "#E9C46A",
+      "icon": "shopping",
+      "custom": false
+    },
+    {
+      "id": "entertainment",
+      "name": "娱乐",
+      "color": "#F4A261",
+      "icon": "entertainment",
+      "custom": false
+    },
+    {
+      "id": "housing",
+      "name": "居住",
+      "color": "#264653",
+      "icon": "housing",
+      "custom": false
+    },
+    {
+      "id": "medical",
+      "name": "医疗",
+      "color": "#E63946",
+      "icon": "medical",
+      "custom": false
+    },
+    {
+      "id": "education",
+      "name": "教育",
+      "color": "#457B9D",
+      "icon": "education",
+      "custom": false
+    },
+    {
+      "id": "other",
+      "name": "其他",
+      "color": "#6C757D",
+      "icon": "other",
+      "custom": false
+    }
+  ],
+  "incomeCats": [
+    {
+      "id": "salary",
+      "name": "工资",
+      "color": "#2D6A4F",
+      "icon": "salary",
+      "custom": false
+    },
+    {
+      "id": "investment",
+      "name": "投资",
+      "color": "#40916C",
+      "icon": "investment",
+      "custom": false
+    },
+    {
+      "id": "gift",
+      "name": "礼金",
+      "color": "#52B788",
+      "icon": "gift",
+      "custom": false
+    },
+    {
+      "id": "other_in",
+      "name": "其他",
+      "color": "#95D5B2",
+      "icon": "other",
+      "custom": false
+    }
+  ]
+}

@@ -1686,6 +1686,19 @@ function getPresetRange(p){
 }
 function inRange(rec,range){if(!range||!range.start||!range.end)return true;return rec.date>=range.start&&rec.date<=range.end}
 
+// 互斥：关闭除指定id外的所有下拉/日期面板（同一页面只允许一个展开）
+function closeDropdowns(excludeId){
+  ['catDropdown','statCatDropdown'].forEach(id=>{
+    if(id!==excludeId){const el=document.getElementById(id);if(el)el.classList.remove('show')}
+  });
+  document.querySelectorAll('.date-panel').forEach(p=>{
+    if(p.id!==excludeId)p.classList.remove('show');
+  });
+  document.querySelectorAll('.date-trigger').forEach(t=>{
+    if(t.id!==excludeId&&t.classList.contains('active'))t.classList.remove('active');
+  });
+}
+
 // 动态创建日期筛选下拉组件
 function createDateFilter(wrapId,getState,setState,onChange){
   const wrap=document.getElementById(wrapId);
@@ -1721,6 +1734,7 @@ function createDateFilter(wrapId,getState,setState,onChange){
   function refreshLabel(){if(dtLabel)dtLabel.textContent=getState().label}
   trg.addEventListener('click',function(e){
     e.stopPropagation();
+    closeDropdowns(wrapId+'_panel');
     panel.classList.toggle('show');
     trg.classList.toggle('active',panel.classList.contains('show'));
     const cs=getState();
@@ -2012,6 +2026,7 @@ function bindEvents(){
   // 分类筛选下拉
   document.getElementById('catFilterTrigger').addEventListener('click',function(e){
     e.stopPropagation();
+    closeDropdowns('catDropdown');
     const panel=document.getElementById('catDropdown');
     if(panel.classList.contains('show'))panel.classList.remove('show');
     else{renderCatDropdown();panel.classList.add('show')}
@@ -2019,6 +2034,7 @@ function bindEvents(){
   // 统计页分类筛选下拉
   document.getElementById('statCatFilterTrigger').addEventListener('click',function(e){
     e.stopPropagation();
+    closeDropdowns('statCatDropdown');
     const panel=document.getElementById('statCatDropdown');
     if(panel.classList.contains('show'))panel.classList.remove('show');
     else{renderStatCatDropdown();panel.classList.add('show')}
@@ -2027,6 +2043,7 @@ function bindEvents(){
     document.getElementById('catDropdown').classList.remove('show');
     document.getElementById('statCatDropdown').classList.remove('show');
     document.querySelectorAll('.date-panel').forEach(p=>p.classList.remove('show'));
+    document.querySelectorAll('.date-trigger.active').forEach(t=>t.classList.remove('active'));
   });
 
   // 记账页类型切换

@@ -81,6 +81,18 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
 .dropdown-actions .btn-all{background:var(--bg);color:var(--text-secondary)}
 .dropdown-actions .btn-ok{background:var(--primary);color:#fff}
 
+/* 日期筛选面板 */
+.date-panel{min-width:260px}
+.date-presets{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.date-preset{padding:8px;text-align:center;border-radius:8px;background:var(--bg);font-size:12px;cursor:pointer;color:var(--text-secondary);transition:all .15s}
+.date-preset:active{background:var(--border)}
+.date-custom{display:flex;gap:8px;margin-bottom:10px}
+.dc-field{flex:1}
+.dc-field label{display:block;font-size:10px;color:var(--text-muted);margin-bottom:3px}
+.dc-field input{width:100%;box-sizing:border-box;padding:7px 8px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:var(--num-font);background:var(--bg);color:var(--text);outline:none;-webkit-appearance:none}
+.dc-field input:focus{border-color:var(--primary);background:var(--card)}
+.date-trigger .dt-label{max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
 /* 日历 */
 .calendar{background:var(--card);border-radius:var(--radius);padding:12px;margin-bottom:14px;box-shadow:var(--shadow)}
 .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
@@ -367,6 +379,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
           </div>
           <div class="dropdown-panel" id="catDropdown"></div>
         </div>
+        <div id="dateFilterWrap"></div>
         <div class="filter-selected" id="filterSelected"></div>
       </div>
       <div id="recordList"></div>
@@ -444,6 +457,17 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
         <div class="period-tab active" data-period="week">周</div>
         <div class="period-tab" data-period="month">月</div>
         <div class="period-tab" data-period="year">年</div>
+      </div>
+      <div class="multi-filter" id="statFilterBar">
+        <div id="statDateFilterWrap"></div>
+        <div class="filter-dropdown">
+          <div class="filter-trigger" id="statCatFilterTrigger">
+            <span>分类筛选</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </div>
+          <div class="dropdown-panel" id="statCatDropdown"></div>
+        </div>
+        <div class="filter-selected" id="statFilterSelected"></div>
       </div>
       <!-- 折线图视图 -->
       <div class="stat-card" id="chartCard">
@@ -661,6 +685,9 @@ let state={
   currentView:'calendar',
   filterType:'all',
   filterCats:[],
+  filterDateRange:{start:null,end:null,label:'本月'},
+  statDateRange:{start:null,end:null,label:'本月'},
+  statCats:[],
   recordType:'expense',
   selectedCategory:'food',
   editingId:null,
@@ -776,18 +803,19 @@ function switchView(view){
 
 // 明细页渲染
 function renderCalendar(){
-  const mk=curMonthKey();
+  const range=state.filterDateRange;
   // 概览
-  let recs=state.records.filter(r=>monthKey(r.date)===mk);
+  let recs=state.records.filter(r=>inRange(r,range));
   if(state.filterType!=='all')recs=recs.filter(r=>r.type===state.filterType);
   if(state.filterCats.length)recs=recs.filter(r=>state.filterCats.includes(r.category));
 
   const ovCard=document.getElementById('overviewCard');
   ovCard.className='overview-card';
+  const rangeLabel=range.label==='全部'?'总':range.label;
   if(state.filterType==='all'){
     const inc=recs.filter(r=>r.type==='income').reduce((s,r)=>s+r.amount,0);
     const exp=recs.filter(r=>r.type==='expense').reduce((s,r)=>s+r.amount,0);
-    document.getElementById('ovLabel').textContent='本月结余';
+    document.getElementById('ovLabel').textContent=rangeLabel+'结余';
     document.getElementById('ovAmount').textContent=fmt(inc-exp);
     document.getElementById('ovSub').style.display='flex';
     document.getElementById('ovIncome').textContent=fmt(inc);
@@ -795,13 +823,13 @@ function renderCalendar(){
   }else if(state.filterType==='expense'){
     ovCard.classList.add('expense');
     const total=recs.reduce((s,r)=>s+r.amount,0);
-    document.getElementById('ovLabel').textContent='本月支出';
+    document.getElementById('ovLabel').textContent=rangeLabel+'支出';
     document.getElementById('ovAmount').textContent=fmt(total);
     document.getElementById('ovSub').style.display='none';
   }else{
     ovCard.classList.add('income');
     const total=recs.reduce((s,r)=>s+r.amount,0);
-    document.getElementById('ovLabel').textContent='本月收入';
+    document.getElementById('ovLabel').textContent=rangeLabel+'收入';
     document.getElementById('ovAmount').textContent=fmt(total);
     document.getElementById('ovSub').style.display='none';
   }
@@ -920,8 +948,8 @@ function renderCalWidget(){
 
 function renderRecordList(){
   const el=document.getElementById('recordList');
-  const mk=curMonthKey();
-  let recs=state.records.filter(r=>monthKey(r.date)===mk);
+  const range=state.filterDateRange;
+  let recs=state.records.filter(r=>inRange(r,range));
   if(state.filterType!=='all')recs=recs.filter(r=>r.type===state.filterType);
   if(state.filterCats.length)recs=recs.filter(r=>state.filterCats.includes(r.category));
 
@@ -929,7 +957,7 @@ function renderRecordList(){
   if(state.selectedDate)recs=recs.filter(r=>r.date===state.selectedDate);
 
   if(recs.length===0){
-    el.innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg><p>'+(state.selectedDate?'该天暂无记录':'本月暂无记录')+'</p><p class="hint">点击下方 + 号开始记账</p></div>';
+    el.innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg><p>'+(state.selectedDate?'该天暂无记录':'该时间范围内暂无记录')+'</p><p class="hint">点击下方 + 号开始记账</p></div>';
     return;
   }
 
@@ -1162,43 +1190,55 @@ function renderBill(){
 function renderStats(){
   document.getElementById('statTypeName').textContent=state.statType==='income'?'收入':'支出';
   document.getElementById('rankTitle').textContent=(state.statType==='income'?'收入':'支出')+'排行榜';
+  renderStatFilterTags();
   renderChart();
   renderRank();
 }
 
 function getPeriodRecords(){
   const type=state.statType;
-  const now=new Date();
-  if(state.statPeriod==='week'){
-    const wr=getWeekRange(todayStr());
-    const labels=[],values=[];
-    for(let i=0;i<7;i++){
-      const d=new Date(wr.start);d.setDate(wr.start.getDate()+i);
-      const ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-      labels.push((d.getMonth()+1)+'/'+d.getDate());
-      values.push(state.records.filter(r=>r.type===type&&r.date===ds).reduce((s,r)=>s+r.amount,0));
-    }
-    return{labels,values,periodLabel:'本周'};
-  }else if(state.statPeriod==='month'){
-    const y=now.getFullYear(),m=now.getMonth();
-    const days=new Date(y,m+1,0).getDate();
-    const labels=[],values=[];
-    for(let d=1;d<=days;d++){
-      const ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-      if(d%5===0||d===days)labels.push(m+1+'/'+d);else labels.push('');
-      values.push(state.records.filter(r=>r.type===type&&r.date===ds).reduce((s,r)=>s+r.amount,0));
-    }
-    return{labels,values,periodLabel:(m+1)+'月'};
-  }else{
-    const y=now.getFullYear();
-    const labels=[],values=[];
-    for(let m=1;m<=12;m++){
-      const mk=y+'-'+String(m).padStart(2,'0');
-      labels.push(m+'月');
-      values.push(state.records.filter(r=>r.type===type&&monthKey(r.date)===mk).reduce((s,r)=>s+r.amount,0));
-    }
-    return{labels,values,periodLabel:y+'年'};
+  const range=state.statDateRange;
+  let recs=state.records.filter(r=>r.type===type&&inRange(r,range));
+  if(state.statCats.length)recs=recs.filter(r=>state.statCats.includes(r.category));
+  if(recs.length===0)return{labels:[],values:[],periodLabel:range.label};
+  // 确定实际起止日期（"全部"时用数据范围）
+  let s=range.start,e=range.end;
+  if(!s||!e){
+    const ds=recs.map(r=>r.date).sort();
+    if(!s)s=ds[0];
+    if(!e)e=ds[ds.length-1];
   }
+  const start=new Date(s),end=new Date(e);
+  const dayCount=Math.round((end-start)/86400000)+1;
+  const labels=[],values=[];
+  if(dayCount<=62){
+    // 按天
+    for(let i=0;i<dayCount;i++){
+      const d=new Date(start);d.setDate(start.getDate()+i);
+      const ds=dateStr(d);
+      labels.push((d.getMonth()+1)+'/'+d.getDate());
+      values.push(recs.filter(r=>r.date===ds).reduce((s,r)=>s+r.amount,0));
+    }
+  }else if(dayCount<=740){
+    // 按月
+    let y=start.getFullYear(),m=start.getMonth();
+    const ey=end.getFullYear(),em=end.getMonth();
+    while(y<ey||(y===ey&&m<=em)){
+      const mk=y+'-'+String(m+1).padStart(2,'0');
+      labels.push((m+1)+'月');
+      values.push(recs.filter(r=>monthKey(r.date)===mk).reduce((s,r)=>s+r.amount,0));
+      m++;if(m>11){m=0;y++}
+    }
+  }else{
+    // 按年
+    let y=start.getFullYear();
+    const ey=end.getFullYear();
+    for(;y<=ey;y++){
+      labels.push(y+'年');
+      values.push(recs.filter(r=>r.date.indexOf(y+'-')===0).reduce((s,r)=>s+r.amount,0));
+    }
+  }
+  return{labels,values,periodLabel:range.label};
 }
 
 function renderChart(){
@@ -1252,8 +1292,9 @@ function renderLineChart(data){
       html+='<circle cx="'+p.x+'" cy="'+p.y+'" r="3.5" fill="#fff" stroke="'+(state.statType==='income'?'#2D6A4F':'#E76F51')+'" stroke-width="2"/>';
     }
   });
+  const labelStep=Math.max(1,Math.ceil(n/6));
   data.labels.forEach((l,i)=>{
-    if(l){
+    if(l&&(i%labelStep===0||i===n-1)){
       const x=padL+(n>1?chartW*i/(n-1):chartW/2);
       html+='<text x="'+x+'" y="'+(H-6)+'" text-anchor="middle" fill="#9A9A9A" font-size="9" font-family="monospace">'+l+'</text>';
     }
@@ -1276,6 +1317,7 @@ function renderStatCalendar(){
 
   const dayData={};
   state.records.filter(r=>monthKey(r.date)===mk&&r.type===type).forEach(r=>{
+    if(state.statCats.length&&!state.statCats.includes(r.category))return;
     if(!dayData[r.date])dayData[r.date]=0;
     dayData[r.date]+=r.amount;
   });
@@ -1308,13 +1350,11 @@ function renderStatCalendar(){
 function renderDonut(data,total){
   const type=state.statType;
   const catMap=getCatMap(type);
-  // 按当前周期汇总分类
-  const periodRecs=state.records.filter(r=>r.type===type);
-  // 简化：用全部数据的分类占比（按当前周期的日期范围过滤太复杂，用当月）
-  const mk=curMonthKey();
-  const monthRecs=periodRecs.filter(r=>monthKey(r.date)===mk);
+  const range=state.statDateRange;
+  let periodRecs=state.records.filter(r=>r.type===type&&inRange(r,range));
+  if(state.statCats.length)periodRecs=periodRecs.filter(r=>state.statCats.includes(r.category));
   const catTotals={};
-  monthRecs.forEach(r=>{catTotals[r.category]=(catTotals[r.category]||0)+r.amount});
+  periodRecs.forEach(r=>{catTotals[r.category]=(catTotals[r.category]||0)+r.amount});
   const sorted=Object.keys(catTotals).sort((a,b)=>catTotals[b]-catTotals[a]);
   const donutTotal=Object.values(catTotals).reduce((s,v)=>s+v,0);
 
@@ -1352,10 +1392,10 @@ function renderDonut(data,total){
 
 function renderRank(){
   const type=state.statType;
-  const mk=curMonthKey();
-  const recs=state.records.filter(r=>r.type===type&&monthKey(r.date)===mk);
+  const range=state.statDateRange;
+  const recs=state.records.filter(r=>r.type===type&&inRange(r,range));
   const catTotals={};
-  recs.forEach(r=>{catTotals[r.category]=(catTotals[r.category]||0)+r.amount});
+  recs.forEach(r=>{if(!state.statCats.length||state.statCats.includes(r.category))catTotals[r.category]=(catTotals[r.category]||0)+r.amount});
   const sorted=Object.keys(catTotals).sort((a,b)=>catTotals[b]-catTotals[a]);
   const el=document.getElementById('rankList');
   if(sorted.length===0){
@@ -1634,6 +1674,144 @@ function renderCatDropdown(){
   });
 }
 
+// ========== 日期筛选 ==========
+function dateStr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function getMonthRange(y,m){return{start:dateStr(new Date(y,m,1)),end:dateStr(new Date(y,m+1,0))}}
+function getPresetRange(p){
+  const now=new Date();
+  if(p==='month'){const r=getMonthRange(now.getFullYear(),now.getMonth());return{start:r.start,end:r.end,label:'本月'}}
+  if(p==='lastmonth'){const d=new Date(now.getFullYear(),now.getMonth()-1,1);const r=getMonthRange(d.getFullYear(),d.getMonth());return{start:r.start,end:r.end,label:'上月'}}
+  if(p==='year'){const y=now.getFullYear();return{start:y+'-01-01',end:y+'-12-31',label:'本年'}}
+  return{start:null,end:null,label:'全部'};
+}
+function inRange(rec,range){if(!range||!range.start||!range.end)return true;return rec.date>=range.start&&rec.date<=range.end}
+
+// 动态创建日期筛选下拉组件
+function createDateFilter(wrapId,getState,setState,onChange){
+  const wrap=document.getElementById(wrapId);
+  if(!wrap)return;
+  const st=getState();
+  wrap.innerHTML=
+    '<div class="filter-dropdown">'+
+      '<div class="filter-trigger date-trigger" id="'+wrapId+'_trg">'+
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>'+
+        '<span class="dt-label">'+st.label+'</span>'+
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><polyline points="6 9 12 15 18 9"></polyline></svg>'+
+      '</div>'+
+      '<div class="dropdown-panel date-panel" id="'+wrapId+'_panel">'+
+        '<div class="date-presets" id="'+wrapId+'_presets">'+
+          '<div class="date-preset" data-p="month">本月</div>'+
+          '<div class="date-preset" data-p="lastmonth">上月</div>'+
+          '<div class="date-preset" data-p="year">本年</div>'+
+          '<div class="date-preset" data-p="all">全部</div>'+
+        '</div>'+
+        '<div class="date-custom">'+
+          '<div class="dc-field"><label>开始</label><input type="date" id="'+wrapId+'_s"></div>'+
+          '<div class="dc-field"><label>结束</label><input type="date" id="'+wrapId+'_e"></div>'+
+        '</div>'+
+        '<div class="dropdown-actions">'+
+          '<button class="btn-all" id="'+wrapId+'_clear">重置</button>'+
+          '<button class="btn-ok" id="'+wrapId+'_ok">应用</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  const trg=document.getElementById(wrapId+'_trg');
+  const panel=document.getElementById(wrapId+'_panel');
+  const dtLabel=trg.querySelector('.dt-label');
+  function refreshLabel(){if(dtLabel)dtLabel.textContent=getState().label}
+  trg.addEventListener('click',function(e){
+    e.stopPropagation();
+    panel.classList.toggle('show');
+    trg.classList.toggle('active',panel.classList.contains('show'));
+    const cs=getState();
+    if(cs.start)document.getElementById(wrapId+'_s').value=cs.start;
+    if(cs.end)document.getElementById(wrapId+'_e').value=cs.end;
+  });
+  document.getElementById(wrapId+'_presets').querySelectorAll('.date-preset').forEach(p=>{
+    p.addEventListener('click',function(){
+      setState(getPresetRange(this.getAttribute('data-p')));
+      refreshLabel();
+      panel.classList.remove('show');trg.classList.remove('active');
+      onChange();
+    });
+  });
+  document.getElementById(wrapId+'_clear').addEventListener('click',function(e){
+    e.stopPropagation();
+    setState(getPresetRange('month'));
+    refreshLabel();
+    panel.classList.remove('show');trg.classList.remove('active');
+    onChange();
+  });
+  document.getElementById(wrapId+'_ok').addEventListener('click',function(e){
+    e.stopPropagation();
+    const sv=document.getElementById(wrapId+'_s').value;
+    const ev=document.getElementById(wrapId+'_e').value;
+    if(sv&&ev){
+      if(sv>ev){showToast('开始日期不能晚于结束日期');return}
+      setState({start:sv,end:ev,label:sv.substring(5,7)+'/'+sv.substring(8,10)+' ~ '+ev.substring(5,7)+'/'+ev.substring(8,10)});
+    }else{
+      setState({start:null,end:null,label:'全部'});
+    }
+    refreshLabel();
+    panel.classList.remove('show');trg.classList.remove('active');
+    onChange();
+  });
+}
+
+// 统计页分类多选下拉
+function renderStatCatDropdown(){
+  const panel=document.getElementById('statCatDropdown');
+  const type=state.statType;
+  const cats=getCats(type);
+  let html='';
+  cats.forEach(c=>{
+    const checked=state.statCats.includes(c.id);
+    html+='<div class="dropdown-item '+(checked?'checked':'')+'" data-cat="'+c.id+'">';
+    html+='<div class="check">'+(checked?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>':'')+'</div>';
+    html+='<span class="dot" style="background:'+c.color+'"></span>';
+    html+='<span class="name">'+c.name+'</span></div>';
+  });
+  html+='<div class="dropdown-actions"><button class="btn-all" id="sddClear">清空</button><button class="btn-ok" id="sddOk">确定</button></div>';
+  panel.innerHTML=html;
+  panel.querySelectorAll('.dropdown-item').forEach(item=>{
+    item.addEventListener('click',function(e){
+      e.stopPropagation();
+      const cid=this.getAttribute('data-cat');
+      if(state.statCats.includes(cid))state.statCats=state.statCats.filter(c=>c!==cid);
+      else state.statCats.push(cid);
+      renderStatCatDropdown();
+    });
+  });
+  document.getElementById('sddClear').addEventListener('click',function(e){
+    e.stopPropagation();
+    state.statCats=[];
+    renderStatCatDropdown();
+  });
+  document.getElementById('sddOk').addEventListener('click',function(e){
+    e.stopPropagation();
+    panel.classList.remove('show');
+    renderStats();
+  });
+}
+
+function renderStatFilterTags(){
+  const el=document.getElementById('statFilterSelected');
+  if(!state.statCats.length){el.innerHTML='';return}
+  let html='';
+  state.statCats.forEach(cid=>{
+    const cat=getCat(state.statType,cid);
+    html+='<span class="filter-tag">'+cat.name+'<span class="x" data-remove="'+cid+'">×</span></span>';
+  });
+  el.innerHTML=html;
+  el.querySelectorAll('[data-remove]').forEach(x=>{
+    x.addEventListener('click',function(e){
+      e.stopPropagation();
+      state.statCats=state.statCats.filter(c=>c!==this.getAttribute('data-remove'));
+      renderStats();
+    });
+  });
+}
+
 // ========== 云端同步（GitHub） ==========
 const GIT_CONFIG_KEY='expense-tracker-git-config';
 const DATA_FILE='data.json';
@@ -1838,8 +2016,17 @@ function bindEvents(){
     if(panel.classList.contains('show'))panel.classList.remove('show');
     else{renderCatDropdown();panel.classList.add('show')}
   });
+  // 统计页分类筛选下拉
+  document.getElementById('statCatFilterTrigger').addEventListener('click',function(e){
+    e.stopPropagation();
+    const panel=document.getElementById('statCatDropdown');
+    if(panel.classList.contains('show'))panel.classList.remove('show');
+    else{renderStatCatDropdown();panel.classList.add('show')}
+  });
   document.addEventListener('click',function(){
     document.getElementById('catDropdown').classList.remove('show');
+    document.getElementById('statCatDropdown').classList.remove('show');
+    document.querySelectorAll('.date-panel').forEach(p=>p.classList.remove('show'));
   });
 
   // 记账页类型切换
@@ -1909,6 +2096,7 @@ function bindEvents(){
   // 统计页
   document.getElementById('statTypeSelect').addEventListener('click',function(){
     state.statType=state.statType==='income'?'expense':'income';
+    state.statCats=[];
     renderStats();
   });
   document.querySelectorAll('.period-tab').forEach(t=>{
@@ -1916,7 +2104,17 @@ function bindEvents(){
       document.querySelectorAll('.period-tab').forEach(x=>x.classList.remove('active'));
       this.classList.add('active');
       state.statPeriod=this.getAttribute('data-period');
-      renderChart();
+      if(state.statPeriod==='week'){
+        const wr=getWeekRange(todayStr());
+        state.statDateRange={start:dateStr(wr.start),end:dateStr(wr.end),label:'本周'};
+      }else if(state.statPeriod==='month'){
+        state.statDateRange=getPresetRange('month');
+      }else{
+        state.statDateRange=getPresetRange('year');
+      }
+      const lbl=document.querySelector('#statDateFilterWrap .dt-label');
+      if(lbl)lbl.textContent=state.statDateRange.label;
+      renderStats();
     });
   });
   document.getElementById('chartToggle').addEventListener('click',function(){
@@ -1989,6 +2187,19 @@ function init(){
     }
   }
   bindEvents();
+  // 初始化日期范围
+  state.selectedDate=null;
+  state.filterDateRange=getPresetRange('month');
+  if(state.statPeriod==='week'){
+    const wr=getWeekRange(todayStr());
+    state.statDateRange={start:dateStr(wr.start),end:dateStr(wr.end),label:'本周'};
+  }else if(state.statPeriod==='month'){
+    state.statDateRange=getPresetRange('month');
+  }else{
+    state.statDateRange=getPresetRange('year');
+  }
+  createDateFilter('dateFilterWrap',function(){return state.filterDateRange},function(v){state.filterDateRange=v},function(){renderCalendar()});
+  createDateFilter('statDateFilterWrap',function(){return state.statDateRange},function(v){state.statDateRange=v},function(){renderStats()});
   renderCalendar();
   document.getElementById('importBtn').style.display='flex';
   updateSyncBtn();

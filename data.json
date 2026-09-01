@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastSync": "2026-09-01T02:34:54.094Z",
+  "lastSync": "2026-09-01T06:02:12.488Z",
   "records": [
     {
       "id": "mtcvwemxcces7",
@@ -29044,6 +29044,33 @@
       "date": "2026-09-01",
       "note": "",
       "createdAt": 1788225809365
+    },
+    {
+      "id": "mti9f6yc4tkot",
+      "type": "expense",
+      "amount": 21,
+      "category": "food",
+      "date": "2026-09-01",
+      "note": "",
+      "createdAt": 1788242514420
+    },
+    {
+      "id": "mti9f9vdag5c8",
+      "type": "expense",
+      "amount": 15,
+      "category": "food",
+      "date": "2026-09-01",
+      "note": "",
+      "createdAt": 1788242518201
+    },
+    {
+      "id": "mti9fey1poeni",
+      "type": "expense",
+      "amount": 19,
+      "category": "custom_mtd9myf863hth",
+      "date": "2026-09-01",
+      "note": "",
+      "createdAt": 1788242524777
     }
   ],
   "expenseCats": [

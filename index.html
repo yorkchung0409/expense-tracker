@@ -99,12 +99,18 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
 .dc-input .dc-val{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
 .dc-input.placeholder .dc-val{color:var(--text-muted)}
 .dc-input svg{width:12px;height:12px;color:var(--text-muted);flex-shrink:0}
-.mini-cal{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--card);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.18);padding:12px;z-index:320;display:none}
+.mini-cal{position:absolute;top:calc(100% + 6px);left:0;min-width:260px;width:max-content;max-width:calc(100vw - 24px);background:var(--card);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.18);padding:12px;z-index:320;display:none}
 .mini-cal.show{display:block}
 .mc-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.mc-nav button{width:28px;height:28px;border:none;background:var(--bg);border-radius:50%;cursor:pointer;color:var(--text-secondary);display:flex;align-items:center;justify-content:center}
+.mc-nav button{width:28px;height:28px;border:none;background:var(--bg);border-radius:50%;cursor:pointer;color:var(--text-secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .mc-nav button:active{background:var(--border)}
-.mc-nav .mc-title{font-size:14px;font-weight:600}
+.mc-nav .mc-title{font-size:14px;font-weight:600;flex:1;text-align:center;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:none;background:transparent;color:var(--text);cursor:pointer;height:28px;display:flex;align-items:center;justify-content:center}
+.mc-nav .mc-title:active{background:var(--bg);border-radius:6px}
+.mc-nav .mc-title.active-ym{color:var(--primary)}
+.mc-months{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.mc-month{padding:10px 0;text-align:center;border:none;border-radius:8px;background:var(--bg);font-size:12px;color:var(--text-secondary);cursor:pointer;transition:all .15s}
+.mc-month:active{background:var(--border)}
+.mc-month.active{background:var(--primary);color:#fff;font-weight:500}
 .mc-nav .mc-nav-right{display:flex;align-items:center;gap:4px}
 .mc-nav .mc-close{width:28px;height:28px;border:none;background:transparent;border-radius:50%;cursor:pointer;color:var(--text-muted);font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center}
 .mc-nav .mc-close:active{background:var(--border)}
@@ -1715,9 +1721,10 @@ function closeDropdowns(excludeId){
   });
 }
 
-// 自绘月历选择器：渲染到 calEl，支持月份导航，选择日期回调；onClose 用于关闭时恢复面板
+// 自绘月历选择器：渲染到 calEl，支持月份导航，点击标题切换年月选择，选择日期回调；onClose 用于关闭时恢复面板
 function renderMiniCal(calEl,view,selected,onPick,onClose){
   const y=view.y,m=view.m;
+  if(view.mode==='ym'){renderYM(calEl,view,selected,onPick,onClose);return}
   const startWeekday=new Date(y,m,1).getDay()||7;
   const daysInMonth=new Date(y,m+1,0).getDate();
   const prevMonthDays=new Date(y,m,0).getDate();
@@ -1727,7 +1734,7 @@ function renderMiniCal(calEl,view,selected,onPick,onClose){
   let html=
     '<div class="mc-nav">'+
       '<button type="button" class="mc-prev" aria-label="上月">'+prevIcon+'</button>'+
-      '<span class="mc-title">'+y+'年'+(m+1)+'月</span>'+
+      '<button type="button" class="mc-title" aria-label="选择年月">'+y+'年'+(m+1)+'月</button>'+
       '<div class="mc-nav-right">'+
         '<button type="button" class="mc-next" aria-label="下月">'+nextIcon+'</button>'+
         '<button type="button" class="mc-close" aria-label="关闭">×</button>'+
@@ -1759,9 +1766,55 @@ function renderMiniCal(calEl,view,selected,onPick,onClose){
   calEl.querySelector('.mc-close').addEventListener('click',function(e){
     e.stopPropagation();if(onClose)onClose();
   });
+  calEl.querySelector('.mc-title').addEventListener('click',function(e){
+    e.stopPropagation();view.mode='ym';renderMiniCal(calEl,view,selected,onPick,onClose);
+  });
   calEl.querySelectorAll('.cal-day[data-date]').forEach(function(d){
     d.addEventListener('click',function(e){
       e.stopPropagation();onPick(this.getAttribute('data-date'));
+    });
+  });
+  calEl.addEventListener('click',function(e){e.stopPropagation()});
+}
+
+// 年月选择视图：年份导航 + 12个月份网格，点月份后回到日历
+function renderYM(calEl,view,selected,onPick,onClose){
+  const y=view.y;
+  const prevIcon='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+  const nextIcon='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+  let html=
+    '<div class="mc-nav">'+
+      '<button type="button" class="mc-prev" aria-label="上一年">'+prevIcon+'</button>'+
+      '<button type="button" class="mc-title active-ym" aria-label="返回日历">'+y+'年</button>'+
+      '<div class="mc-nav-right">'+
+        '<button type="button" class="mc-next" aria-label="下一年">'+nextIcon+'</button>'+
+        '<button type="button" class="mc-close" aria-label="关闭">×</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="mc-months">';
+  for(let i=0;i<12;i++){
+    html+='<button type="button" class="mc-month'+(i===view.m?' active':'')+'" data-m="'+i+'">'+(i+1)+'月</button>';
+  }
+  html+='</div>';
+  calEl.innerHTML=html;
+  calEl.querySelector('.mc-prev').addEventListener('click',function(e){
+    e.stopPropagation();view.y--;renderYM(calEl,view,selected,onPick,onClose);
+  });
+  calEl.querySelector('.mc-next').addEventListener('click',function(e){
+    e.stopPropagation();view.y++;renderYM(calEl,view,selected,onPick,onClose);
+  });
+  calEl.querySelector('.mc-close').addEventListener('click',function(e){
+    e.stopPropagation();if(onClose)onClose();
+  });
+  calEl.querySelector('.mc-title').addEventListener('click',function(e){
+    e.stopPropagation();view.mode='month';renderMiniCal(calEl,view,selected,onPick,onClose);
+  });
+  calEl.querySelectorAll('.mc-month').forEach(function(b){
+    b.addEventListener('click',function(e){
+      e.stopPropagation();
+      view.m=parseInt(this.getAttribute('data-m'));
+      view.mode='month';
+      renderMiniCal(calEl,view,selected,onPick,onClose);
     });
   });
   calEl.addEventListener('click',function(e){e.stopPropagation()});
@@ -1826,7 +1879,7 @@ function createDateFilter(wrapId,getState,setState,onChange){
     calField=field;
     const cur=document.getElementById(wrapId+'_'+field).getAttribute('data-date');
     const base=cur?new Date(cur):new Date();
-    calView={y:base.getFullYear(),m:base.getMonth()};
+    calView={y:base.getFullYear(),m:base.getMonth(),mode:'month'};
     renderMiniCal(calEl,calView,cur||'',function(ds){
       setDateField(calField,ds);
       closeCal();

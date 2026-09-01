@@ -115,15 +115,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
 .mc-nav .mc-close{width:28px;height:28px;border:none;background:transparent;border-radius:50%;cursor:pointer;color:var(--text-muted);font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center}
 .mc-nav .mc-close:active{background:var(--border)}
 
-/* 记账页日期选择弹层（居中偏上） */
-.date-picker-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:600;display:none;align-items:flex-start;justify-content:center;padding-top:8vh}
-.date-picker-modal.show{display:flex}
-.dpm-card{background:var(--card);border-radius:16px;width:min(320px,92vw);padding:14px;box-shadow:0 12px 40px rgba(0,0,0,.2);max-height:70vh;overflow-y:auto}
-.dpm-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.dpm-title{font-size:15px;font-weight:600}
-.dpm-close{width:28px;height:28px;border:none;background:transparent;border-radius:50%;cursor:pointer;color:var(--text-muted);font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center}
-.dpm-close:active{background:var(--border)}
-.dpm-card .mc-title{cursor:pointer}
+/* 记账页日期选择下拉（跟随日期控件下方） */
+.date-picker-dropdown{position:relative}
 
 /* 日历 */
 .calendar{background:var(--card);border-radius:var(--radius);padding:12px;margin-bottom:14px;box-shadow:var(--shadow)}
@@ -449,10 +442,13 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
           <div class="form-field">
             <label>日期</label>
             <input type="date" id="dateInput" style="display:none">
-            <button type="button" class="dc-input placeholder" id="dateInputBtn" data-date="">
-              <span class="dc-val" id="dateInputVal">选择日期</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-            </button>
+            <div class="date-picker-dropdown">
+              <button type="button" class="dc-input placeholder" id="dateInputBtn" data-date="">
+                <span class="dc-val" id="dateInputVal">选择日期</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              </button>
+              <div class="mini-cal" id="dateInputCal"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -477,17 +473,6 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
         <button class="del-btn" id="deleteRecordBtn">删除此记录</button>
       </div>
     </section>
-
-    <!-- 记账日期选择弹层 -->
-    <div class="date-picker-modal" id="datePickerModal">
-      <div class="dpm-card">
-        <div class="dpm-head">
-          <span class="dpm-title">选择日期</span>
-          <button type="button" class="dpm-close" id="datePickerClose" aria-label="关闭">×</button>
-        </div>
-        <div id="datePickerCal"></div>
-      </div>
-    </div>
 
     <!-- 统计页 -->
     <section class="view" id="view-stats">
@@ -2277,28 +2262,24 @@ function bindEvents(){
   // 保存
   document.getElementById('saveBtn').addEventListener('click',saveRecord);
 
-  // 记账页自绘日期选择
+  // 记账页自绘日期选择（下拉）
   document.getElementById('dateInputBtn').addEventListener('click',function(e){
     e.stopPropagation();
-    const modal=document.getElementById('datePickerModal');
-    const cal=document.getElementById('datePickerCal');
+    const cal=document.getElementById('dateInputCal');
+    if(cal.classList.contains('show')){cal.classList.remove('show');return}
+    closeDropdowns('');
     const cur=document.getElementById('dateInput').value;
     const base=cur?new Date(cur):new Date();
     const view={y:base.getFullYear(),m:base.getMonth(),mode:'month'};
     renderMiniCal(cal,view,cur||'',function(ds){
       setDateInput(ds);
-      modal.classList.remove('show');
+      cal.classList.remove('show');
     },function(){
-      modal.classList.remove('show');
+      cal.classList.remove('show');
     });
-    modal.classList.add('show');
+    cal.classList.add('show');
   });
-  document.getElementById('datePickerClose').addEventListener('click',function(){
-    document.getElementById('datePickerModal').classList.remove('show');
-  });
-  document.getElementById('datePickerModal').addEventListener('click',function(e){
-    if(e.target===this)this.classList.remove('show');
-  });
+  document.getElementById('dateInputCal').addEventListener('click',function(e){e.stopPropagation()});
 
   // 删除记录
   document.getElementById('deleteRecordBtn').addEventListener('click',function(){

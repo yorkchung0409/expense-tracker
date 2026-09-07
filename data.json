@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastSync": "2026-09-02T10:47:17.908Z",
+  "lastSync": "2026-09-07T04:59:21.632Z",
   "records": [
     {
       "id": "mtcvwemxcces7",
@@ -29125,6 +29125,159 @@
       "date": "2026-09-02",
       "note": "",
       "createdAt": 1788346014513
+    },
+    {
+      "id": "mtjz3qyh56pgh",
+      "type": "income",
+      "amount": 2500,
+      "category": "custom_mtjz3prdmuc8j",
+      "date": "2026-08-24",
+      "note": "分红",
+      "createdAt": 1788346116665
+    },
+    {
+      "id": "mtkbk7pzw71vr",
+      "type": "income",
+      "amount": 46,
+      "category": "custom_mtcvwu8vz8t7c",
+      "date": "2026-09-03",
+      "note": "",
+      "createdAt": 1788367040279
+    },
+    {
+      "id": "mtkbkd8ovlg3c",
+      "type": "expense",
+      "amount": 129.5,
+      "category": "custom_mtd9myf863hth",
+      "date": "2026-09-03",
+      "note": "",
+      "createdAt": 1788367047432
+    },
+    {
+      "id": "mtkbkh9m82soh",
+      "type": "expense",
+      "amount": 151,
+      "category": "custom_mtd9myf863hth",
+      "date": "2026-09-03",
+      "note": "",
+      "createdAt": 1788367052650
+    },
+    {
+      "id": "mtm8y5trp99kl",
+      "type": "expense",
+      "amount": 240,
+      "category": "custom_mtd9myf863hth",
+      "date": "2026-09-04",
+      "note": "",
+      "createdAt": 1788483584511
+    },
+    {
+      "id": "mtm8ya7kc148t",
+      "type": "income",
+      "amount": 85,
+      "category": "custom_mtcvwu8vz8t7c",
+      "date": "2026-09-04",
+      "note": "",
+      "createdAt": 1788483590192
+    },
+    {
+      "id": "mtm8yjah9u3rm",
+      "type": "expense",
+      "amount": 50,
+      "category": "transport",
+      "date": "2026-09-04",
+      "note": "羊城通",
+      "createdAt": 1788483601961
+    },
+    {
+      "id": "mtnvbf7jvjpww",
+      "type": "expense",
+      "amount": 27,
+      "category": "food",
+      "date": "2026-09-05",
+      "note": "",
+      "createdAt": 1788581620927
+    },
+    {
+      "id": "mtnvbj8i1q8e8",
+      "type": "expense",
+      "amount": 14,
+      "category": "transport",
+      "date": "2026-09-05",
+      "note": "",
+      "createdAt": 1788581626146
+    },
+    {
+      "id": "mtnvbwmuzho2d",
+      "type": "expense",
+      "amount": 32.5,
+      "category": "food",
+      "date": "2026-09-05",
+      "note": "",
+      "createdAt": 1788581643510
+    },
+    {
+      "id": "mtnvc3m5jlz4y",
+      "type": "expense",
+      "amount": 60,
+      "category": "custom_mtd9myf863hth",
+      "date": "2026-09-05",
+      "note": "",
+      "createdAt": 1788581652557
+    },
+    {
+      "id": "mtpqm1b5ukg8u",
+      "type": "expense",
+      "amount": 23,
+      "category": "transport",
+      "date": "2026-09-05",
+      "note": "",
+      "createdAt": 1788694650401
+    },
+    {
+      "id": "mtpqm7mz6w5ce",
+      "type": "expense",
+      "amount": 36,
+      "category": "food",
+      "date": "2026-09-06",
+      "note": "",
+      "createdAt": 1788694658603
+    },
+    {
+      "id": "mtpqmbd3w4kjn",
+      "type": "expense",
+      "amount": 41,
+      "category": "food",
+      "date": "2026-09-06",
+      "note": "",
+      "createdAt": 1788694663431
+    },
+    {
+      "id": "mtpqmels10zmf",
+      "type": "expense",
+      "amount": 14,
+      "category": "food",
+      "date": "2026-09-06",
+      "note": "",
+      "createdAt": 1788694667632
+    },
+    {
+      "id": "mtqrtn9zp7m9f",
+      "type": "expense",
+      "amount": 6,
+      "category": "food",
+      "date": "2026-09-07",
+      "note": "",
+      "createdAt": 1788757151255
+    },
+    {
+      "id": "mtqrtqk3dnns8",
+      "type": "expense",
+      "amount": 40,
+      "category": "food",
+      "date": "2026-09-07",
+      "note": "",
+      "createdAt": 1788757155507
     }
   ],
   "expenseCats": [
@@ -29225,6 +29378,13 @@
       "id": "custom_mtcvwu8vz8t7c",
       "name": "德州",
       "color": "#2A9D8F",
+      "icon": "coin",
+      "custom": true
+    },
+    {
+      "id": "custom_mtjz3prdmuc8j",
+      "name": "分红",
+      "color": "#E76F51",
       "icon": "coin",
       "custom": true
     }

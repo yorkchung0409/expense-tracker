@@ -195,12 +195,12 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
 .category-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 6px}
 .cat-option{display:flex;flex-direction:column;align-items:center;gap:5px;padding:6px 2px;border-radius:var(--radius-sm);cursor:pointer;transition:all .2s;position:relative}
 .cat-option:active{transform:scale(.92)}
-.cat-option .cat-icon{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#F0EDE6;transition:all .2s}
-.cat-option .cat-icon svg{width:22px;height:22px;color:#6B6B6B;transition:all .2s}
+.cat-option .cat-icon{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--ccbg,#F0EDE6);transition:all .2s}
+.cat-option .cat-icon svg{width:22px;height:22px;color:var(--cc,#6B6B6B);transition:all .2s}
 .cat-option.selected.expense .cat-icon{background:rgba(231,111,81,.12)}
-.cat-option.selected.expense .cat-icon svg{color:var(--accent)}
+.cat-option.selected.expense .cat-icon svg{color:var(--cc)}
 .cat-option.selected.income .cat-icon{background:var(--income-bg)}
-.cat-option.selected.income .cat-icon svg{color:var(--income)}
+.cat-option.selected.income .cat-icon svg{color:var(--cc)}
 .cat-option .cat-name{font-size:11px;color:var(--text-secondary);font-weight:500;text-align:center}
 .cat-option.selected .cat-name{color:var(--text);font-weight:600}
 .cat-option .cat-del{position:absolute;top:0;right:4px;width:16px;height:16px;border-radius:50%;background:var(--accent);color:#fff;display:none;align-items:center;justify-content:center;font-size:11px;line-height:1;cursor:pointer}
@@ -776,6 +776,7 @@ function genId(){return Date.now().toString(36)+Math.random().toString(36).subst
 
 // 工具
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function hexToRgba(h,a){if(!/^#[0-9a-fA-F]{6}$/.test(h||''))return'';const n=parseInt(h.slice(1),16);return'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')'}
 function fmt(n){return Number(n).toFixed(2)}
 function fmtShort(n){
   if(n>=10000)return (n/10000).toFixed(1)+'万';
@@ -1031,7 +1032,7 @@ function renderCategoryGrid(){
   let html='';
   cats.forEach(c=>{
     const sel=state.selectedCategory===c.id;
-    html+='<div class="cat-option '+(sel?'selected '+state.recordType:'')+(c.custom?' custom':'')+'" data-cat="'+c.id+'">';
+    html+='<div class="cat-option '+(sel?'selected '+state.recordType:'')+(c.custom?' custom':'')+'" data-cat="'+c.id+'" style="--cc:'+c.color+';--ccbg:'+hexToRgba(c.color,0.12)+'">';
     if(c.custom)html+='<span class="cat-del" data-delcat="'+c.id+'">×</span>';
     html+='<div class="cat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[c.icon]||ICONS.other)+'</svg></div>';
     html+='<div class="cat-name">'+esc(c.name)+'</div></div>';

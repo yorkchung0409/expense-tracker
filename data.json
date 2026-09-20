@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastSync": "2026-09-18T12:46:49.926Z",
+  "lastSync": "2026-09-20T06:40:24.426Z",
   "records": [
     {
       "id": "mtcvwemxcces7",
@@ -29638,6 +29638,69 @@
       "date": "2026-09-18",
       "note": "",
       "createdAt": 1789735605396
+    },
+    {
+      "id": "mu8g4r45pbnkt",
+      "type": "expense",
+      "amount": 142,
+      "category": "food",
+      "date": "2026-09-19",
+      "note": "",
+      "createdAt": 1789825905221
+    },
+    {
+      "id": "mu95a46vlag70",
+      "type": "expense",
+      "amount": 23,
+      "category": "transport",
+      "date": "2026-09-20",
+      "note": "",
+      "createdAt": 1789868145847
+    },
+    {
+      "id": "mu95a96dxc9vd",
+      "type": "expense",
+      "amount": 7,
+      "category": "food",
+      "date": "2026-09-20",
+      "note": "",
+      "createdAt": 1789868152309
+    },
+    {
+      "id": "mu95ae8eyjwxb",
+      "type": "expense",
+      "amount": 36,
+      "category": "food",
+      "date": "2026-09-19",
+      "note": "",
+      "createdAt": 1789868158862
+    },
+    {
+      "id": "mu95apo2cf1os",
+      "type": "expense",
+      "amount": 19,
+      "category": "food",
+      "date": "2026-09-19",
+      "note": "",
+      "createdAt": 1789868173682
+    },
+    {
+      "id": "mu9fv5b2dfs2e",
+      "type": "income",
+      "amount": 2550,
+      "category": "custom_mtjz3prdmuc8j",
+      "date": "2026-09-20",
+      "note": "",
+      "createdAt": 1789885923230
+    },
+    {
+      "id": "mu9fvk4qzxc7h",
+      "type": "expense",
+      "amount": 476,
+      "category": "custom_mu9fvh55lv81d",
+      "date": "2026-09-20",
+      "note": "",
+      "createdAt": 1789885942442
     }
   ],
   "expenseCats": [
@@ -29709,6 +29772,13 @@
       "name": "礼金",
       "color": "#F4A261",
       "icon": "coin",
+      "custom": true
+    },
+    {
+      "id": "custom_mu9fvh55lv81d",
+      "name": "旅游",
+      "color": "#457B9D",
+      "icon": "plane",
       "custom": true
     }
   ],

@@ -186,34 +186,34 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
 .nk-op{background:rgba(231,111,81,.08);color:var(--accent);font-size:22px;font-weight:700}
 .nk-op:active{background:rgba(231,111,81,.18)}
 .nk-c{color:var(--text-secondary);font-size:18px;font-weight:600}
-.amount-input.long{font-size:26px}
-.amt-result{display:none;justify-content:flex-end;align-items:center;font-size:14px;color:var(--text-secondary);font-family:var(--num-font);margin:-8px 0 12px;padding:0 4px;min-height:18px}
+.amount-input.long{font-size:24px}
+.amt-result{display:none;justify-content:flex-end;align-items:center;font-size:14px;color:var(--text-secondary);font-family:var(--num-font);margin:-6px 0 8px;padding:0 4px;min-height:16px}
 .nk-save-row{margin-top:2px}
 .nk-save{width:100%;height:46px;border:none;border-radius:10px;background:var(--primary);color:#fff;font-size:16px;font-weight:600;cursor:pointer;transition:opacity .15s}
 .nk-save:active{opacity:.8}
 
 /* 记账页 */
-.type-switch{display:flex;background:var(--card);border-radius:12px;padding:4px;margin-bottom:16px;box-shadow:var(--shadow)}
-.type-switch-btn{flex:1;padding:10px;text-align:center;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;transition:all .25s;color:var(--text-muted)}
+.type-switch{display:flex;background:var(--card);border-radius:12px;padding:4px;margin-bottom:10px;box-shadow:var(--shadow)}
+.type-switch-btn{flex:1;padding:7px;text-align:center;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;transition:all .25s;color:var(--text-muted)}
 .type-switch-btn.active.expense{background:var(--accent);color:#fff}
 .type-switch-btn.active.income{background:var(--income);color:#fff}
 
-.amount-input-wrap{background:var(--card);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);display:flex;align-items:baseline;gap:4px;margin-bottom:16px;border:1.5px solid transparent;transition:border-color .2s,box-shadow .2s}
+.amount-input-wrap{background:var(--card);border-radius:var(--radius);padding:12px 16px;box-shadow:var(--shadow);display:flex;align-items:baseline;gap:4px;margin-bottom:10px;border:1.5px solid transparent;transition:border-color .2s,box-shadow .2s}
 .amount-input-wrap:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px rgba(27,67,50,.10)}
-.amount-input-wrap .yuan-sign{font-size:26px;font-weight:600;color:var(--text-muted)}
-.amount-input{flex:1;border:none;outline:none;font-family:var(--num-font);font-size:36px;font-weight:700;color:var(--text);background:transparent;width:100%;letter-spacing:-1px}
+.amount-input-wrap .yuan-sign{font-size:22px;font-weight:600;color:var(--text-muted)}
+.amount-input{flex:1;border:none;outline:none;font-family:var(--num-font);font-size:32px;font-weight:700;color:var(--text);background:transparent;width:100%;letter-spacing:-1px}
 .amount-input::placeholder{color:var(--border)}
 
-.form-section{margin-bottom:16px}
-.form-label{font-size:13px;color:var(--text-secondary);margin-bottom:8px;font-weight:500;display:flex;justify-content:space-between;align-items:center}
+.form-section{margin-bottom:10px}
+.form-label{font-size:13px;color:var(--text-secondary);margin-bottom:6px;font-weight:500;display:flex;justify-content:space-between;align-items:center}
 .form-label .add-cat{font-size:12px;color:var(--primary);cursor:pointer;font-weight:500;display:flex;align-items:center;gap:2px}
 .form-label .add-cat svg{width:14px;height:14px}
 
-.category-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 6px}
-.cat-option{display:flex;flex-direction:column;align-items:center;gap:5px;padding:6px 2px;border-radius:var(--radius-sm);cursor:pointer;transition:all .2s;position:relative}
+.category-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px 5px}
+.cat-option{display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px 2px;border-radius:var(--radius-sm);cursor:pointer;transition:all .2s;position:relative}
 .cat-option:active{transform:scale(.92)}
-.cat-option .cat-icon{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--ccbg,#F0EDE6);transition:all .2s}
-.cat-option .cat-icon svg{width:22px;height:22px;color:var(--cc,#6B6B6B);transition:all .2s}
+.cat-option .cat-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--ccbg,#F0EDE6);transition:all .2s}
+.cat-option .cat-icon svg{width:20px;height:20px;color:var(--cc,#6B6B6B);transition:all .2s}
 .cat-option.selected.expense .cat-icon{box-shadow:0 0 0 2px var(--accent)}
 .cat-option.selected.expense .cat-icon svg{color:var(--cc)}
 .cat-option.selected.income .cat-icon{box-shadow:0 0 0 2px var(--income)}
@@ -222,18 +222,18 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
 .cat-option.selected .cat-name{color:var(--text);font-weight:600}
 
 .form-row{display:flex;gap:10px}
-.form-field{flex:1;background:var(--card);border-radius:var(--radius-sm);padding:12px 14px;box-shadow:var(--shadow)}
+.form-field{flex:1;background:var(--card);border-radius:var(--radius-sm);padding:9px 12px;box-shadow:var(--shadow)}
 .form-field label{display:block;font-size:11px;color:var(--text-muted);margin-bottom:4px}
 .form-field input,.form-field textarea{width:100%;border:none;outline:none;font-size:14px;color:var(--text);background:transparent;font-family:inherit;resize:none}
 .form-field input[type="date"]{font-family:var(--num-font);color:var(--text-secondary)}
 
-.save-btn{width:100%;padding:14px;border:none;border-radius:var(--radius);color:#fff;font-size:15px;font-weight:600;cursor:pointer;transition:transform .15s,opacity .2s;letter-spacing:1px}
+.save-btn{width:100%;padding:12px;border:none;border-radius:var(--radius);color:#fff;font-size:15px;font-weight:600;cursor:pointer;transition:transform .15s,opacity .2s;letter-spacing:1px}
 .save-btn.expense{background:linear-gradient(135deg,var(--accent) 0%,var(--accent-light) 100%)}
 .save-btn.income{background:linear-gradient(135deg,var(--income) 0%,var(--income-light) 100%)}
 .save-btn:active{transform:scale(.98)}
 .save-btn:disabled{opacity:.5;cursor:not-allowed}
-.edit-actions{display:flex;gap:10px;margin-top:10px}
-.edit-actions .del-btn{flex:1;padding:14px;border:none;border-radius:var(--radius);background:var(--card);color:var(--accent);font-size:15px;font-weight:600;cursor:pointer;box-shadow:var(--shadow);border:1px solid rgba(231,111,81,.2)}
+.edit-actions{display:flex;gap:10px;margin-top:8px}
+.edit-actions .del-btn{flex:1;padding:12px;border:none;border-radius:var(--radius);background:var(--card);color:var(--accent);font-size:15px;font-weight:600;cursor:pointer;box-shadow:var(--shadow);border:1px solid rgba(231,111,81,.2)}
 
 /* 账单页 */
 .bill-tabs{display:flex;background:var(--card);border-radius:12px;padding:4px;margin-bottom:14px;box-shadow:var(--shadow)}
@@ -467,6 +467,10 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
               <div class="mini-cal" id="dateInputCal"></div>
             </div>
           </div>
+          <div class="form-field">
+            <label>备注</label>
+            <input type="text" id="noteInput" placeholder="添加备注..." maxlength="50">
+          </div>
         </div>
       </div>
       <div class="form-section">
@@ -478,12 +482,6 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
           </span>
         </div>
         <div class="category-grid" id="categoryGrid"></div>
-      </div>
-      <div class="form-section">
-        <div class="form-field">
-          <label>备注（选填）</label>
-          <input type="text" id="noteInput" placeholder="添加备注..." maxlength="50">
-        </div>
       </div>
       <button class="save-btn expense" id="saveBtn">保存记录</button>
       <div class="edit-actions" id="editActions" style="display:none">
@@ -813,6 +811,7 @@ function formatDate(d){const dt=new Date(d);return (dt.getMonth()+1)+'月'+dt.ge
 function statColor(){return state.statType==='income'?'#2E8B6B':'#E76F51'}
 // 日期框显示格式 YYYY/MM/DD
 function fmtFieldDate(ds){return ds.substring(0,4)+'/'+ds.substring(5,7)+'/'+ds.substring(8,10)}
+function fmtFieldShort(ds){return ds.substring(5,7)+'-'+ds.substring(8,10)+' '+getWeekday(ds)}
 // 通用小图标
 const ICON_PREV='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><polyline points="15 18 9 12 15 6"></polyline></svg>';
 const ICON_NEXT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><polyline points="9 18 15 12 9 6"></polyline></svg>';
@@ -1019,7 +1018,7 @@ function setDateInput(ds){
   const v=document.getElementById('dateInputVal');
   if(ds){
     b.setAttribute('data-date',ds);b.classList.remove('placeholder');
-    v.textContent=fmtFieldDate(ds);
+    v.textContent=fmtFieldShort(ds);
   }else{
     b.setAttribute('data-date','');b.classList.add('placeholder');
     v.textContent='选择日期';
@@ -2281,6 +2280,7 @@ function bindEvents(){
   // 记账页自绘日期选择（下拉）
   document.getElementById('dateInputBtn').addEventListener('click',function(e){
     e.stopPropagation();
+    document.getElementById('numKbd').classList.remove('show');
     const cal=document.getElementById('dateInputCal');
     if(cal.classList.contains('show')){cal.classList.remove('show');return}
     closeDropdowns('');

@@ -1491,7 +1491,7 @@ function renderStatWeek(){
     if(ds===today)cls+=' today';
     if(val>0)cls+=' has-'+type;
     html+='<div class="'+cls+'" data-date="'+ds+'">';
-    html+='<span class="d-num">'+['日','一','二','三','四','五','六'][dt.getDay()]+'</span>';
+    html+='<span class="d-num">'+dt.getDate()+'</span>';
     if(val>0)html+='<span class="d-'+(type==='income'?'in':'out')+'">'+fmtShort(val)+'</span>';
     html+='</div>';
   }

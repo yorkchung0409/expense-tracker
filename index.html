@@ -285,6 +285,15 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
 
 .stat-card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
 .stat-card-title{font-size:14px;font-weight:600;margin-bottom:12px;color:var(--text)}
+.bal-list{max-height:220px;overflow-y:auto;margin-top:10px;border-top:1px solid var(--border);-webkit-overflow-scrolling:touch}
+.bal-row{display:flex;align-items:center;padding:7px 2px;font-size:12px;gap:6px}
+.bal-row+.bal-row{border-top:1px solid var(--border)}
+.bal-row .b-month{flex:1.5;color:var(--text);font-weight:500;white-space:nowrap}
+.bal-row .b-cell{flex:1;text-align:right;font-family:var(--num-font);white-space:nowrap}
+.bal-row .b-cell.in{color:var(--income)}
+.bal-row .b-cell.out{color:var(--accent)}
+.bal-row .b-cell.bal-pos{color:var(--income);font-weight:700}
+.bal-row .b-cell.bal-neg{color:var(--accent);font-weight:700}
 
 /* 折线图 */
 .line-chart-wrap{position:relative;height:160px;margin-bottom:8px}
@@ -560,6 +569,12 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
         </div>
         <div class="cal-weekdays" style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:11px;color:var(--text-muted);margin-bottom:6px"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
         <div class="cal-grid" id="statCalGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px"></div>
+      </div>
+      <!-- 结余统计视图（跟随统计周期：周/月/年） -->
+      <div class="stat-card" id="balanceCard" style="display:none">
+        <div class="line-info"><span id="balanceLabel">近12月</span><span class="total" id="balanceTotal">¥0.00</span></div>
+        <div class="line-chart-wrap"><svg class="line-chart-svg" id="balanceChart" viewBox="0 0 320 160" preserveAspectRatio="none"></svg></div>
+        <div class="bal-list" id="balanceList"></div>
       </div>
       <div class="stat-card">
         <div class="stat-card-title" id="rankTitle">支出排行榜</div>
@@ -838,7 +853,8 @@ const ICON_CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 const CHART_ICONS={
   line:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>',
   donut:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 0 20"></path></svg>',
-  calendar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>'
+  calendar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>',
+  balance:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="20" x2="6" y2="12"></line><line x1="12" y1="20" x2="12" y2="6"></line><line x1="18" y1="20" x2="18" y2="15"></line><line x1="3" y1="20" x2="21" y2="20"></line></svg>'
 };
 
 // 获取本周日期范围
@@ -1393,13 +1409,15 @@ function renderChart(){
 
   if(state.chartMode==='line'){setChartView('line');renderLineChart(data)}
   else if(state.chartMode==='donut'){setChartView('donut');renderDonut(data,total)}
-  else{setChartView('calendar');renderStatCalendar()}
+  else if(state.chartMode==='calendar'){setChartView('calendar');renderStatCalendar()}
+  else{setChartView('balance');renderBalanceChart()}
 }
 // 切换统计图表视图，仅显示当前模式对应的卡片
 function setChartView(mode){
   document.getElementById('chartCard').style.display=mode==='line'?'block':'none';
   document.getElementById('donutCard').style.display=mode==='donut'?'block':'none';
   document.getElementById('calViewCard').style.display=mode==='calendar'?'block':'none';
+  document.getElementById('balanceCard').style.display=mode==='balance'?'block':'none';
 }
 
 function renderLineChart(data){
@@ -1577,6 +1595,97 @@ function stepCal(dir){
     if(state.calMonth>11){state.calMonth=0;state.calYear++}
   }
   renderStatCalendar();
+}
+
+// 结余统计：按当前统计周期（周/月/年）展示各周期收支与结余
+function renderBalanceChart(){
+  const period=state.statPeriod;
+  const now=new Date();
+  const units=[];
+  let headLabel='';
+  if(period==='week'){
+    headLabel='近12周';
+    const wd=now.getDay()||7;
+    const mon=new Date(now);mon.setDate(now.getDate()-(wd-1));
+    for(let i=11;i>=0;i--){
+      const s=new Date(mon);s.setDate(mon.getDate()-i*7);
+      const e=new Date(s);e.setDate(s.getDate()+6);
+      units.push({from:dateStr(s),to:dateStr(e),label:(s.getMonth()+1)+'/'+s.getDate(),title:dateStr(s).substring(5)+'~'+dateStr(e).substring(5)});
+    }
+  }else if(period==='year'){
+    headLabel='近5年';
+    for(let i=4;i>=0;i--){
+      const y=now.getFullYear()-i;
+      units.push({y:String(y),label:String(y).substring(2)+'年',title:y+'年'});
+    }
+  }else{
+    headLabel='近12月';
+    for(let i=11;i>=0;i--){
+      const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+      units.push({mk:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),label:(d.getMonth()+1)+'月',title:d.getFullYear()+'年'+(d.getMonth()+1)+'月'});
+    }
+  }
+  const recs=state.records;
+  for(let i=0;i<recs.length;i++){
+    const r=recs[i];
+    for(let j=0;j<units.length;j++){
+      const u=units[j];
+      let hit=false;
+      if(u.from)hit=r.date>=u.from&&r.date<=u.to;
+      else if(u.mk)hit=r.date.substring(0,7)===u.mk;
+      else hit=r.date.substring(0,4)===u.y;
+      if(!hit)continue;
+      if(!u.s)u.s={out:0,inc:0};
+      if(r.type==='expense')u.s.out+=r.amount;
+      else u.s.inc+=r.amount;
+    }
+  }
+  const data=units.map(u=>{
+    const s=u.s||{out:0,inc:0};
+    return{label:u.label,title:u.title,out:Math.round(s.out*100)/100,inc:Math.round(s.inc*100)/100,bal:Math.round((s.inc-s.out)*100)/100};
+  });
+  const totalBal=data.reduce((t,x)=>t+x.bal,0);
+  document.getElementById('balanceLabel').textContent=headLabel;
+  document.getElementById('balanceTotal').textContent=(totalBal>=0?'+':'')+fmt(totalBal);
+
+  const svg=document.getElementById('balanceChart');
+  const W=320,H=160,padL=8,padR=8,padT=20,padB=16;
+  const chartW=W-padL-padR,chartH=H-padT-padB;
+  const baseY=padT+chartH/2;
+  const n=data.length;
+  const bw=chartW/n*0.56;
+  const maxAbs=Math.max.apply(null,data.map(d=>Math.abs(d.bal)));
+  const labelStep=Math.max(1,Math.ceil(n/6));
+  let html='';
+  data.forEach((x,i)=>{
+    const cx=padL+(n>1?chartW*(i+0.5)/n:chartW/2);
+    const h=maxAbs>0?Math.abs(x.bal)/maxAbs*(chartH/2-6):0;
+    const y=x.bal>=0?baseY-h:baseY;
+    const color=x.bal>=0?'#2E8B6B':'#E76F51';
+    html+='<rect x="'+(cx-bw/2)+'" y="'+y+'" width="'+bw+'" height="'+Math.max(h,0.5)+'" rx="2" fill="'+color+'" opacity="0.85"/>';
+    if(x.bal!==0){
+      const ty=x.bal>=0?y-7:y+h+11;
+      html+='<text x="'+cx+'" y="'+ty+'" text-anchor="middle" fill="'+color+'" font-size="9" font-family="monospace">'+(x.bal>=0?'+':'-')+fmtShort(Math.abs(x.bal))+'</text>';
+    }
+    if(i%labelStep===0||i===n-1){
+      html+='<text x="'+cx+'" y="'+(H-4)+'" text-anchor="middle" fill="#9A9A9A" font-size="9" font-family="monospace">'+x.label+'</text>';
+    }
+  });
+  html+='<line x1="'+padL+'" y1="'+baseY+'" x2="'+(W-padR)+'" y2="'+baseY+'" stroke="#E4E3DD" stroke-width="1"/>';
+  svg.innerHTML=html;
+
+  const listEl=document.getElementById('balanceList');
+  let lh='';
+  for(let i=data.length-1;i>=0;i--){
+    const x=data[i];
+    lh+='<div class="bal-row">';
+    lh+='<span class="b-month">'+x.title+'</span>';
+    lh+='<span class="b-cell in">+'+fmt(x.inc)+'</span>';
+    lh+='<span class="b-cell out">-'+fmt(x.out)+'</span>';
+    lh+='<span class="b-cell '+(x.bal>=0?'bal-pos':'bal-neg')+'">'+(x.bal>=0?'+':'-')+fmt(Math.abs(x.bal))+'</span>';
+    lh+='</div>';
+  }
+  listEl.innerHTML=lh;
 }
 
 function renderDonut(data,total){
@@ -2491,6 +2600,7 @@ function bindEvents(){
   document.getElementById('chartToggle').addEventListener('click',function(){
     if(state.chartMode==='line')state.chartMode='donut';
     else if(state.chartMode==='donut')state.chartMode='calendar';
+    else if(state.chartMode==='calendar')state.chartMode='balance';
     else state.chartMode='line';
     this.innerHTML=CHART_ICONS[state.chartMode];
     renderChart();

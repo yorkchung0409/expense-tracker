@@ -203,8 +203,6 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
 .cat-option.selected.income .cat-icon svg{color:var(--cc)}
 .cat-option .cat-name{font-size:11px;color:var(--text-secondary);font-weight:500;text-align:center}
 .cat-option.selected .cat-name{color:var(--text);font-weight:600}
-.cat-option .cat-del{position:absolute;top:0;right:4px;width:16px;height:16px;border-radius:50%;background:var(--accent);color:#fff;display:none;align-items:center;justify-content:center;font-size:11px;line-height:1;cursor:pointer}
-.cat-option.custom .cat-del{display:flex}
 
 .form-row{display:flex;gap:10px}
 .form-field{flex:1;background:var(--card);border-radius:var(--radius-sm);padding:12px 14px;box-shadow:var(--shadow)}
@@ -1033,28 +1031,39 @@ function renderCategoryGrid(){
   cats.forEach(c=>{
     const sel=state.selectedCategory===c.id;
     html+='<div class="cat-option '+(sel?'selected '+state.recordType:'')+(c.custom?' custom':'')+'" data-cat="'+c.id+'" style="--cc:'+c.color+';--ccbg:'+hexToRgba(c.color,0.12)+'">';
-    if(c.custom)html+='<span class="cat-del" data-delcat="'+c.id+'">×</span>';
     html+='<div class="cat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[c.icon]||ICONS.other)+'</svg></div>';
     html+='<div class="cat-name">'+esc(c.name)+'</div></div>';
   });
   el.innerHTML=html;
   el.querySelectorAll('.cat-option').forEach(o=>{
+    const cid=o.getAttribute('data-cat');
+    const catName=(o.querySelector('.cat-name')||{}).textContent||'';
+    let longTimer=null,longPressed=false;
     o.addEventListener('click',function(e){
-      if(e.target.hasAttribute('data-delcat'))return;
-      state.selectedCategory=this.getAttribute('data-cat');
+      if(longPressed){longPressed=false;return;}
+      state.selectedCategory=cid;
       renderCategoryGrid();
     });
-  });
-  el.querySelectorAll('.cat-del').forEach(d=>{
-    d.addEventListener('click',function(e){
-      e.stopPropagation();
-      const cid=this.getAttribute('data-delcat');
-      showConfirm('删除分类','删除后该分类的记录将归为"其他"，确定删除？',()=>deleteCategory(cid));
-    });
+    const cancelLong=function(){clearTimeout(longTimer)};
+    const startLong=function(){
+      longPressed=false;
+      clearTimeout(longTimer);
+      longTimer=setTimeout(function(){
+        longPressed=true;
+        showConfirm('删除分类','删除"'+catName+'"后，该分类的历史记录将归为"其他"。确定删除？',function(){deleteCategory(cid)});
+      },600);
+    };
+    o.addEventListener('touchstart',startLong,{passive:true});
+    o.addEventListener('touchend',cancelLong);
+    o.addEventListener('touchmove',cancelLong);
+    o.addEventListener('mousedown',startLong);
+    o.addEventListener('mouseup',cancelLong);
+    o.addEventListener('mouseleave',cancelLong);
   });
 }
 
 function deleteCategory(cid){
+  if(cid==='other'||cid==='other_in'){showToast('"其他"分类不可删除');return}
   const type=state.recordType;
   const cats=getCats(type);
   const idx=cats.findIndex(c=>c.id===cid);

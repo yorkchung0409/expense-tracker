@@ -174,6 +174,18 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
 .tab-add{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 100%);display:flex;align-items:center;justify-content:center;margin-top:-22px;box-shadow:0 4px 14px rgba(27,67,50,.35);cursor:pointer;transition:transform .15s;flex-shrink:0}
 .tab-add:active{transform:scale(.92)}
 .tab-add svg{width:24px;height:24px;color:#fff}
+/* 自绘数字键盘 */
+.num-kbd{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:480px;background:var(--card);border-top:1px solid var(--border);box-shadow:0 -4px 20px rgba(0,0,0,.08);padding:10px 12px calc(10px + env(safe-area-inset-bottom));z-index:150;display:none;transition:transform .25s ease}
+.num-kbd.show{display:block;transform:translateX(-50%) translateY(0)}
+.nk-row{display:flex;gap:6px;margin-bottom:6px}
+.nk-key{flex:1;height:48px;border:none;border-radius:10px;background:var(--bg);font-size:20px;font-weight:600;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+.nk-key:active{background:var(--border)}
+.nk-key svg{width:20px;height:20px}
+.nk-del{color:var(--text-secondary)}
+.nk-dot{font-size:24px}
+.nk-save-row{margin-top:2px}
+.nk-save{width:100%;height:46px;border:none;border-radius:10px;background:var(--primary);color:#fff;font-size:16px;font-weight:600;cursor:pointer;transition:opacity .15s}
+.nk-save:active{opacity:.8}
 
 /* 记账页 */
 .type-switch{display:flex;background:var(--card);border-radius:12px;padding:4px;margin-bottom:16px;box-shadow:var(--shadow)}
@@ -434,7 +446,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
       </div>
       <div class="amount-input-wrap">
         <span class="yuan-sign">¥</span>
-        <input type="text" class="amount-input" id="amountInput" placeholder="0.00" inputmode="decimal">
+        <input type="text" class="amount-input" id="amountInput" placeholder="0.00" readonly>
       </div>
       <div class="form-section">
         <div class="form-row">
@@ -546,6 +558,13 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
       <span>统计</span>
     </div>
+  </div>
+  <div class="num-kbd" id="numKbd">
+    <div class="nk-row"><button type="button" class="nk-key" data-d="1">1</button><button type="button" class="nk-key" data-d="2">2</button><button type="button" class="nk-key" data-d="3">3</button></div>
+    <div class="nk-row"><button type="button" class="nk-key" data-d="4">4</button><button type="button" class="nk-key" data-d="5">5</button><button type="button" class="nk-key" data-d="6">6</button></div>
+    <div class="nk-row"><button type="button" class="nk-key" data-d="7">7</button><button type="button" class="nk-key" data-d="8">8</button><button type="button" class="nk-key" data-d="9">9</button></div>
+    <div class="nk-row"><button type="button" class="nk-key nk-dot" data-d=".">.</button><button type="button" class="nk-key" data-d="0">0</button><button type="button" class="nk-key nk-del" data-d="del"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><line x1="18" y1="9" x2="12" y2="15"></line><line x1="12" y1="9" x2="18" y2="15"></line></svg></button></div>
+    <div class="nk-save-row"><button type="button" class="nk-save" id="nkSave">保存支出</button></div>
   </div>
 </div>
 
@@ -809,6 +828,7 @@ function getWeekRange(dateStr){
 
 // 视图切换
 function switchView(view){
+  const nk=document.getElementById('numKbd');if(nk)nk.classList.remove('show');
   state.currentView=view;
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+view).classList.add('active');
@@ -1023,6 +1043,8 @@ function updateSaveBtn(){
   const btn=document.getElementById('saveBtn');
   btn.className='save-btn '+state.recordType;
   btn.textContent=state.editingId?'保存修改':(state.recordType==='income'?'保存收入':'保存支出');
+  const nk=document.getElementById('nkSave');
+  if(nk)nk.textContent=btn.textContent;
 }
 function renderCategoryGrid(){
   const el=document.getElementById('categoryGrid');
@@ -2151,6 +2173,7 @@ function bindEvents(){
     document.querySelectorAll('.date-panel').forEach(p=>p.classList.remove('show'));
     document.querySelectorAll('.date-trigger.active').forEach(t=>t.classList.remove('active'));
     document.querySelectorAll('.mini-cal').forEach(c=>c.classList.remove('show'));
+    document.getElementById('numKbd').classList.remove('show');
   });
 
   // 记账页类型切换
@@ -2164,16 +2187,36 @@ function bindEvents(){
     });
   });
 
-  // 金额输入
+  // 金额输入：自绘数字键盘（不调用系统键盘）
   const amt=document.getElementById('amountInput');
-  amt.addEventListener('input',function(){
-    let v=this.value.replace(/[^\d.]/g,'');
-    const p=v.split('.');
-    if(p.length>2)v=p[0]+'.'+p.slice(1).join('');
-    if(p[1]&&p[1].length>2)v=p[0]+'.'+p[1].substring(0,2);
-    this.value=v;
+  amt.addEventListener('click',function(e){
+    e.stopPropagation();
+    document.getElementById('numKbd').classList.add('show');
+    this.focus();
   });
-  amt.addEventListener('keydown',e=>{if(e.key==='Enter')saveRecord()});
+  const numKbd=document.getElementById('numKbd');
+  numKbd.addEventListener('click',function(e){e.stopPropagation()});
+  numKbd.querySelectorAll('.nk-key').forEach(k=>{
+    k.addEventListener('click',function(){
+      const d=this.getAttribute('data-d');
+      if(d==='del'){amt.value=amt.value.slice(0,-1);return}
+      let v=amt.value;
+      if(d==='.'){
+        if(v.indexOf('.')>=0)return;
+        amt.value=v===''?'0.':v+'.';
+      }else{
+        if(v==='0'){amt.value=d;return}
+        if(v.indexOf('.')>=0){
+          if(v.split('.')[1].length>=2)return;
+          amt.value=v+d;
+        }else{
+          if(v.replace(/[^0-9]/g,'').length>=9)return;
+          amt.value=v+d;
+        }
+      }
+    });
+  });
+  document.getElementById('nkSave').addEventListener('click',saveRecord);
 
   // 保存
   document.getElementById('saveBtn').addEventListener('click',saveRecord);

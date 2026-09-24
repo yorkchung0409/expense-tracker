@@ -262,7 +262,9 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
 .bill-note{text-align:center;font-size:11px;color:var(--text-muted);padding:14px}
 
 /* 统计页 */
-.stat-today{display:flex;background:var(--card);border-radius:var(--radius);padding:12px;margin-bottom:12px;box-shadow:var(--shadow);gap:8px}
+.stat-today{display:flex;flex-direction:column;background:var(--card);border-radius:var(--radius);padding:12px 12px 10px;margin-bottom:12px;box-shadow:var(--shadow)}
+.stat-today .st-head{font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:8px}
+.stat-today .st-body{display:flex;gap:8px}
 .stat-today .st-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}
 .stat-today .st-label{font-size:11px;color:var(--text-muted)}
 .stat-today .st-val{font-size:16px;font-weight:700;font-family:var(--num-font);color:var(--text);white-space:nowrap}
@@ -509,9 +511,12 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
         </div>
       </div>
       <div class="stat-today" id="statToday">
-        <div class="st-item"><div class="st-label">今日支出</div><div class="st-val out" id="stTodayOut">¥0.00</div></div>
-        <div class="st-item"><div class="st-label">今日收入</div><div class="st-val in" id="stTodayIn">¥0.00</div></div>
-        <div class="st-item"><div class="st-label">今日结余</div><div class="st-val" id="stTodayBal">¥0.00</div></div>
+        <div class="st-head">汇总</div>
+        <div class="st-body">
+          <div class="st-item"><div class="st-label">支出</div><div class="st-val out" id="stTodayOut">¥0.00</div></div>
+          <div class="st-item"><div class="st-label">收入</div><div class="st-val in" id="stTodayIn">¥0.00</div></div>
+          <div class="st-item"><div class="st-label">结余</div><div class="st-val" id="stTodayBal">¥0.00</div></div>
+        </div>
       </div>
       <div class="period-tabs">
         <div class="period-tab active" data-period="week">周</div>
@@ -1297,27 +1302,27 @@ function renderStats(){
   document.getElementById('statTypeName').textContent=state.statType==='income'?'收入':'支出';
   document.getElementById('rankTitle').textContent=(state.statType==='income'?'收入':'支出')+'排行榜';
   renderStatFilterTags();
-  renderStatToday();
+  renderStatSummary();
   renderChart();
   renderRank();
 }
 
-// 统计页今日收支汇总（当天实际收支 + 结余）
-function renderStatToday(){
-  const t=todayStr();
+// 统计页汇总卡（当前统计周期内的支出 / 收入 / 结余）
+function renderStatSummary(){
+  const range=state.statDateRange;
   let out=0,inc=0;
   const recs=state.records;
   for(let i=0;i<recs.length;i++){
     const r=recs[i];
-    if(r.date!==t)continue;
+    if(!inRange(r,range))continue;
     if(r.type==='expense')out+=r.amount;
     else inc+=r.amount;
   }
-  document.getElementById('stTodayOut').textContent='-¥'+fmt(out);
-  document.getElementById('stTodayIn').textContent='+¥'+fmt(inc);
+  document.getElementById('stTodayOut').textContent='¥'+fmt(out);
+  document.getElementById('stTodayIn').textContent='¥'+fmt(inc);
   const bal=Math.round((inc-out)*100)/100;
   const bel=document.getElementById('stTodayBal');
-  bel.textContent=(bal>=0?'+':'')+fmt(bal);
+  bel.textContent=(bal>=0?'+':'-')+fmt(Math.abs(bal));
   bel.className='st-val'+(bal>=0?' pos':' neg');
 }
 

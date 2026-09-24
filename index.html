@@ -315,6 +315,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
 .rank-item .rank-bar{height:5px;background:var(--bg);border-radius:3px;overflow:hidden}
 .rank-item .rank-bar-fill{height:100%;border-radius:3px;transition:width .6s ease}
 .rank-item .rank-amount{font-family:var(--num-font);font-size:12px;font-weight:600;flex-shrink:0}
+.rank-item .rank-amount.in{color:var(--income)}
+.rank-item .rank-amount.out{color:var(--accent)}
 
 /* 云端同步 */
 .sync-btn{width:34px;height:34px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow);color:var(--text-secondary);transition:all .2s;position:relative}
@@ -827,7 +829,7 @@ function todayStr(){return dateStr(new Date())}
 function getWeekday(d){return ['周日','周一','周二','周三','周四','周五','周六'][new Date(d).getDay()]}
 function formatDate(d){const dt=new Date(d);return (dt.getMonth()+1)+'月'+dt.getDate()+'日'}
 // 统计页主色（随收支类型变化）
-function statColor(){return state.statType==='income'?'#2E8B6B':'#E76F51'}
+function statColor(){return state.statType==='income'?'#2E8B6B':(state.statType==='balance'?'#1B4332':'#E76F51')}
 // 日期框显示格式 YYYY/MM/DD
 function fmtFieldDate(ds){return ds.substring(0,4)+'/'+ds.substring(5,7)+'/'+ds.substring(8,10)}
 function fmtFieldShort(ds){return ds.substring(5,7)+'-'+ds.substring(8,10)+' '+getWeekday(ds)}
@@ -1298,9 +1300,10 @@ function renderBill(){
 }
 
 // 统计页
+function statTypeName(){return state.statType==='balance'?'结余':(state.statType==='income'?'收入':'支出')}
 function renderStats(){
-  document.getElementById('statTypeName').textContent=state.statType==='income'?'收入':'支出';
-  document.getElementById('rankTitle').textContent=(state.statType==='income'?'收入':'支出')+'排行榜';
+  document.getElementById('statTypeName').textContent=statTypeName();
+  document.getElementById('rankTitle').textContent=statTypeName()+'排行榜';
   renderStatFilterTags();
   renderStatSummary();
   renderChart();
@@ -1329,7 +1332,8 @@ function renderStatSummary(){
 function getPeriodRecords(){
   const type=state.statType;
   const range=state.statDateRange;
-  let recs=state.records.filter(r=>r.type===type&&inRange(r,range));
+  let recs=state.records.filter(r=>inRange(r,range));
+  if(type!=='balance')recs=recs.filter(r=>r.type===type);
   if(state.statCats.length)recs=recs.filter(r=>state.statCats.includes(r.category));
   if(recs.length===0)return{labels:[],values:[],periodLabel:range.label};
   // 确定实际起止日期（"全部"时用数据范围）
@@ -1369,7 +1373,8 @@ function getPeriodRecords(){
   const sums={};
   for(let i=0;i<recs.length;i++){
     const k=keyFn(recs[i].date);
-    sums[k]=(sums[k]||0)+recs[i].amount;
+    const amt=type==='balance'?(recs[i].type==='income'?recs[i].amount:-recs[i].amount):recs[i].amount;
+    sums[k]=(sums[k]||0)+amt;
   }
   // 构建与 labels 一一对应的聚合键
   const keys=[];
@@ -1405,17 +1410,19 @@ function setChartView(mode){
 function renderLineChart(data){
   const svg=document.getElementById('lineChart');
   const W=320,H=160,padL=8,padR=8,padT=10,padB=24;
-  const maxV=Math.max.apply(null,data.values.concat([1]));
+  const isBal=state.statType==='balance';
   const chartW=W-padL-padR,chartH=H-padT-padB;
+  const maxV=Math.max.apply(null,data.values.concat([1]).map(v=>Math.abs(v)));
   const n=data.values.length;
   let html='';
   for(let i=0;i<=3;i++){
     const y=padT+chartH*(i/3);
     html+='<line x1="'+padL+'" y1="'+y+'" x2="'+(W-padR)+'" y2="'+y+'" stroke="#E8E4DC" stroke-width="0.5" stroke-dasharray="3,3"/>';
   }
+  if(isBal)html+='<line x1="'+padL+'" y1="'+(padT+chartH/2)+'" x2="'+(W-padR)+'" y2="'+(padT+chartH/2)+'" stroke="#C9C5BC" stroke-width="1"/>';
   const points=data.values.map((v,i)=>{
     const x=padL+(n>1?chartW*i/(n-1):chartW/2);
-    const y=padT+chartH*(1-v/maxV);
+    const y=isBal?padT+chartH/2*(1-v/maxV):padT+chartH*(1-v/maxV);
     return{x,y};
   });
   if(points.length>1){
@@ -1426,7 +1433,7 @@ function renderLineChart(data){
     html+='<path d="'+areaD+'" fill="'+color+'" opacity="0.08"/>';
   }
   points.forEach((p,i)=>{
-    if(data.values[i]>0){
+    if(isBal||data.values[i]>0){
       html+='<circle cx="'+p.x+'" cy="'+p.y+'" r="3.5" fill="#fff" stroke="'+statColor()+'" stroke-width="2"/>';
     }
   });
@@ -1462,10 +1469,10 @@ function renderStatMonth(){
   const type=state.statType;
 
   const dayData={};
-  state.records.filter(r=>monthKey(r.date)===mk&&r.type===type).forEach(r=>{
+  state.records.filter(r=>monthKey(r.date)===mk&&(type==='balance'||r.type===type)).forEach(r=>{
     if(state.statCats.length&&!state.statCats.includes(r.category))return;
     if(!dayData[r.date])dayData[r.date]=0;
-    dayData[r.date]+=r.amount;
+    dayData[r.date]+=type==='balance'?(r.type==='income'?r.amount:-r.amount):r.amount;
   });
 
   const el=document.getElementById('statCalGrid');
@@ -1479,10 +1486,15 @@ function renderStatMonth(){
     const val=dayData[ds]||0;
     let cls='cal-day';
     if(ds===today)cls+=' today';
-    if(val>0)cls+=' has-'+type;
+    let disp='';
+    if(type==='balance'){
+      if(val>0){cls+=' has-income';disp='<span class="d-in">+'+fmtShort(val)+'</span>'}
+      else if(val<0){cls+=' has-expense';disp='<span class="d-out">-'+fmtShort(-val)+'</span>'}
+    }else{
+      if(val>0){cls+=' has-'+type;disp='<span class="d-'+(type==='income'?'in':'out')+'">'+(type==='income'?'+':'-')+fmtShort(val)+'</span>'}
+    }
     html+='<div class="'+cls+'" data-date="'+ds+'">';
-    html+='<span class="d-num">'+d+'</span>';
-    if(val>0)html+='<span class="d-'+(type==='income'?'in':'out')+'">'+(type==='income'?'+':'-')+fmtShort(val)+'</span>';
+    html+='<span class="d-num">'+d+'</span>'+disp;
     html+='</div>';
   }
   const totalCells=startWeekday-1+daysInMonth;
@@ -1505,7 +1517,7 @@ function renderStatWeek(){
   document.getElementById('statCalTitle').innerHTML=calTitleHtml(title);
   const type=state.statType;
   const today=todayStr();
-  const recs=state.records.filter(r=>r.type===type);
+  const recs=state.records.filter(r=>type==='balance'||r.type===type);
   const dayData={};
   for(let i=0;i<7;i++){
     const dt=new Date(mon);dt.setDate(mon.getDate()+i);
@@ -1514,7 +1526,7 @@ function renderStatWeek(){
     for(let j=0;j<recs.length;j++){
       if(recs[j].date===ds){
         if(state.statCats.length&&!state.statCats.includes(recs[j].category))continue;
-        sum+=recs[j].amount;
+        sum+=type==='balance'?(recs[j].type==='income'?recs[j].amount:-recs[j].amount):recs[j].amount;
       }
     }
     dayData[ds]=sum;
@@ -1527,10 +1539,15 @@ function renderStatWeek(){
     const val=dayData[ds]||0;
     let cls='cal-day';
     if(ds===today)cls+=' today';
-    if(val>0)cls+=' has-'+type;
+    let disp='';
+    if(type==='balance'){
+      if(val>0){cls+=' has-income';disp='<span class="d-in">+'+fmtShort(val)+'</span>'}
+      else if(val<0){cls+=' has-expense';disp='<span class="d-out">-'+fmtShort(-val)+'</span>'}
+    }else{
+      if(val>0){cls+=' has-'+type;disp='<span class="d-'+(type==='income'?'in':'out')+'">'+(type==='income'?'+':'-')+fmtShort(val)+'</span>'}
+    }
     html+='<div class="'+cls+'" data-date="'+ds+'">';
-    html+='<span class="d-num">'+dt.getDate()+'</span>';
-    if(val>0)html+='<span class="d-'+(type==='income'?'in':'out')+'">'+(type==='income'?'+':'-')+fmtShort(val)+'</span>';
+    html+='<span class="d-num">'+dt.getDate()+'</span>'+disp;
     html+='</div>';
   }
   el.innerHTML=html;
@@ -1542,13 +1559,13 @@ function renderStatYear(){
   const type=state.statType;
   const sy=String(y);
   const monthSums={};
-  const recs=state.records.filter(r=>r.type===type);
+  const recs=state.records.filter(r=>type==='balance'||r.type===type);
   for(let i=0;i<recs.length;i++){
     const r=recs[i];
     if(r.date.substring(0,4)!==sy)continue;
     if(state.statCats.length&&!state.statCats.includes(r.category))continue;
     const mk=r.date.substring(0,7);
-    monthSums[mk]=(monthSums[mk]||0)+r.amount;
+    monthSums[mk]=(monthSums[mk]||0)+(type==='balance'?(r.type==='income'?r.amount:-r.amount):r.amount);
   }
   const el=document.getElementById('statCalGrid');
   let html='';
@@ -1556,10 +1573,15 @@ function renderStatYear(){
     const mk=y+'-'+String(m+1).padStart(2,'0');
     const val=monthSums[mk]||0;
     let cls='cal-day cal-month';
-    if(val>0)cls+=' has-'+type;
+    let disp='';
+    if(type==='balance'){
+      if(val>0){cls+=' has-income';disp='<span class="d-in">+'+fmtShort(val)+'</span>'}
+      else if(val<0){cls+=' has-expense';disp='<span class="d-out">-'+fmtShort(-val)+'</span>'}
+    }else{
+      if(val>0){cls+=' has-'+type;disp='<span class="d-'+(type==='income'?'in':'out')+'">'+(type==='income'?'+':'-')+fmtShort(val)+'</span>'}
+    }
     html+='<div class="'+cls+'" data-month="'+mk+'">';
-    html+='<span class="d-num">'+(m+1)+'月</span>';
-    if(val>0)html+='<span class="d-'+(type==='income'?'in':'out')+'">'+(type==='income'?'+':'-')+fmtShort(val)+'</span>';
+    html+='<span class="d-num">'+(m+1)+'月</span>'+disp;
     html+='</div>';
   }
   el.innerHTML=html;
@@ -1580,6 +1602,7 @@ function stepCal(dir){
 }
 
 function renderDonut(data,total){
+  if(state.statType==='balance'){renderDonutBalance();return}
   const type=state.statType;
   const catMap=getCatMap(type);
   const range=state.statDateRange;
@@ -1622,7 +1645,79 @@ function renderDonut(data,total){
   legend.innerHTML=legendHtml;
 }
 
+// 结余模式环形图：收入 vs 支出 两段
+function renderDonutBalance(){
+  const range=state.statDateRange;
+  let inc=0,out=0;
+  const recs=state.records;
+  for(let i=0;i<recs.length;i++){
+    const r=recs[i];
+    if(!inRange(r,range))continue;
+    if(state.statCats.length&&!state.statCats.includes(r.category))continue;
+    if(r.type==='income')inc+=r.amount;
+    else out+=r.amount;
+  }
+  const bal=Math.round((inc-out)*100)/100;
+  document.getElementById('donutLabel').textContent='结余';
+  document.getElementById('donutTotal').textContent=(bal>=0?'+':'')+fmt(bal);
+  const svg=document.getElementById('donutSvg');
+  const legend=document.getElementById('donutLegend');
+  if(inc+out===0){
+    svg.innerHTML='<circle cx="65" cy="65" r="52" fill="none" stroke="#E8E4DC" stroke-width="14"/>';
+    legend.innerHTML='<div style="font-size:12px;color:var(--text-muted);text-align:center;padding:20px 0">暂无数据</div>';
+    return;
+  }
+  const cx=65,cy=65,r=52,sw=14,circ=2*Math.PI*r;
+  let offset=0,svgHtml='',legendHtml='';
+  const segs=[{name:'收入',value:inc,color:'#2E8B6B'},{name:'支出',value:out,color:'#E76F51'}];
+  segs.forEach(seg=>{
+    const pct=seg.value/(inc+out);
+    const dash=pct*circ;
+    svgHtml+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+seg.color+'" stroke-width="'+sw+'" stroke-dasharray="'+dash+' '+(circ-dash)+'" stroke-dashoffset="'+(-offset)+'" transform="rotate(-90 '+cx+' '+cy+')"/>';
+    offset+=dash;
+    legendHtml+='<div class="legend-item"><span class="dot" style="background:'+seg.color+'"></span><span class="name">'+seg.name+'</span><span class="pct">'+(pct*100).toFixed(1)+'%</span></div>';
+  });
+  svg.innerHTML=svgHtml;
+  legend.innerHTML=legendHtml;
+}
+
+function renderRankBalance(){
+  const range=state.statDateRange;
+  const net={};
+  const allCats={};
+  const ec=getCats('expense');for(let i=0;i<ec.length;i++)allCats[ec[i].id]=ec[i];
+  const ic=getCats('income');for(let i=0;i<ic.length;i++)allCats[ic[i].id]=ic[i];
+  const recs=state.records;
+  for(let i=0;i<recs.length;i++){
+    const r=recs[i];
+    if(!inRange(r,range))continue;
+    if(state.statCats.length&&!state.statCats.includes(r.category))continue;
+    net[r.category]=(net[r.category]||0)+(r.type==='income'?r.amount:-r.amount);
+  }
+  const sorted=Object.keys(net).sort((a,b)=>net[b]-net[a]);
+  const el=document.getElementById('rankList');
+  if(sorted.length===0){
+    el.innerHTML='<div style="font-size:12px;color:var(--text-muted);text-align:center;padding:20px 0">暂无数据</div>';
+    return;
+  }
+  const maxV=Math.max.apply(null,sorted.map(c=>Math.abs(net[c])));
+  let html='';
+  sorted.slice(0,8).forEach(c=>{
+    const cat=allCats[c]||{color:'#999',name:c,icon:'other'};
+    const val=net[c];
+    const pct=maxV>0?Math.abs(val)/maxV*100:0;
+    const color=val>=0?'#2E8B6B':'#E76F51';
+    html+='<div class="rank-item"><div class="rank-icon" style="background:'+cat.color+'20">';
+    html+='<svg viewBox="0 0 24 24" fill="none" stroke="'+cat.color+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[cat.icon]||ICONS.other)+'</svg></div>';
+    html+='<div class="rank-info"><div class="rank-name">'+esc(cat.name)+'</div>';
+    html+='<div class="rank-bar"><div class="rank-bar-fill" style="width:'+pct+'%;background:'+color+'"></div></div></div>';
+    html+='<div class="rank-amount '+(val>=0?'in':'out')+'">'+(val>=0?'+':'-')+'¥'+fmt(Math.abs(val))+'</div></div>';
+  });
+  el.innerHTML=html;
+}
+
 function renderRank(){
+  if(state.statType==='balance'){renderRankBalance();return}
   const type=state.statType;
   const range=state.statDateRange;
   const recs=state.records.filter(r=>r.type===type&&inRange(r,range));
@@ -2471,7 +2566,7 @@ function bindEvents(){
 
   // 统计页
   document.getElementById('statTypeSelect').addEventListener('click',function(){
-    state.statType=state.statType==='income'?'expense':'income';
+    state.statType=state.statType==='expense'?'income':(state.statType==='income'?'balance':'expense');
     state.statCats=[];
     renderStats();
   });

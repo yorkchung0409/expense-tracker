@@ -747,6 +747,7 @@ let state={
   editingId:null,
   calYear:new Date().getFullYear(),
   calMonth:new Date().getMonth(),
+  calDay:new Date().getDate(),
   selectedDate:null,
   billMode:'month',
   statType:'expense',
@@ -1401,10 +1402,18 @@ function renderLineChart(data){
   svg.innerHTML=html;
 }
 
-// 统计页日历视图
+// 统计页日历视图（周/月/年 三种维度）
+function calTitleHtml(t){return t+' <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;color:var(--text-muted)"><polyline points="6 9 12 15 18 9"></polyline></svg>'}
+function calGridColumns(n){document.getElementById('statCalGrid').style.gridTemplateColumns='repeat('+n+',1fr)'}
 function renderStatCalendar(){
+  if(state.statPeriod==='week'){renderStatWeek();return}
+  if(state.statPeriod==='year'){renderStatYear();return}
+  renderStatMonth();
+}
+function renderStatMonth(){
+  calGridColumns(7);
   const y=state.calYear,m=state.calMonth;
-  document.getElementById('statCalTitle').innerHTML=y+'年'+(m+1)+'月 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;color:var(--text-muted)"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+  document.getElementById('statCalTitle').innerHTML=calTitleHtml(y+'年'+(m+1)+'月');
   const firstDay=new Date(y,m,1);
   const lastDay=new Date(y,m+1,0);
   const startWeekday=firstDay.getDay()||7;
@@ -1444,6 +1453,92 @@ function renderStatCalendar(){
     html+='<div class="cal-day other-month"><span class="d-num">'+d+'</span></div>';
   }
   el.innerHTML=html;
+}
+function renderStatWeek(){
+  calGridColumns(7);
+  const y=state.calYear,m=state.calMonth,d=state.calDay||1;
+  const base=new Date(y,m,d);
+  const wd=base.getDay()||7;
+  const mon=new Date(base);mon.setDate(base.getDate()-(wd-1));
+  const sun=new Date(base);sun.setDate(base.getDate()+(7-wd));
+  const head=(mon.getMonth()+1)+'月'+mon.getDate()+'日';
+  const tail=(sun.getMonth()+1)+'月'+sun.getDate()+'日';
+  const title=mon.getMonth()===sun.getMonth()?head+' - '+tail:(mon.getFullYear()+'年'+head+' - '+sun.getFullYear()+'年'+tail);
+  document.getElementById('statCalTitle').innerHTML=calTitleHtml(title);
+  const type=state.statType;
+  const today=todayStr();
+  const recs=state.records.filter(r=>r.type===type);
+  const dayData={};
+  for(let i=0;i<7;i++){
+    const dt=new Date(mon);dt.setDate(mon.getDate()+i);
+    const ds=dateStr(dt);
+    let sum=0;
+    for(let j=0;j<recs.length;j++){
+      if(recs[j].date===ds){
+        if(state.statCats.length&&!state.statCats.includes(recs[j].category))continue;
+        sum+=recs[j].amount;
+      }
+    }
+    dayData[ds]=sum;
+  }
+  const el=document.getElementById('statCalGrid');
+  let html='';
+  for(let i=0;i<7;i++){
+    const dt=new Date(mon);dt.setDate(mon.getDate()+i);
+    const ds=dateStr(dt);
+    const val=dayData[ds]||0;
+    let cls='cal-day';
+    if(ds===today)cls+=' today';
+    if(val>0)cls+=' has-'+type;
+    html+='<div class="'+cls+'" data-date="'+ds+'">';
+    html+='<span class="d-num">'+['日','一','二','三','四','五','六'][dt.getDay()]+'</span>';
+    if(val>0)html+='<span class="d-'+(type==='income'?'in':'out')+'">'+fmtShort(val)+'</span>';
+    html+='</div>';
+  }
+  el.innerHTML=html;
+}
+function renderStatYear(){
+  calGridColumns(4);
+  const y=state.calYear;
+  document.getElementById('statCalTitle').innerHTML=calTitleHtml(y+'年');
+  const type=state.statType;
+  const sy=String(y);
+  const monthSums={};
+  const recs=state.records.filter(r=>r.type===type);
+  for(let i=0;i<recs.length;i++){
+    const r=recs[i];
+    if(r.date.substring(0,4)!==sy)continue;
+    if(state.statCats.length&&!state.statCats.includes(r.category))continue;
+    const mk=r.date.substring(0,7);
+    monthSums[mk]=(monthSums[mk]||0)+r.amount;
+  }
+  const el=document.getElementById('statCalGrid');
+  let html='';
+  for(let m=0;m<12;m++){
+    const mk=y+'-'+String(m+1).padStart(2,'0');
+    const val=monthSums[mk]||0;
+    let cls='cal-day cal-month';
+    if(val>0)cls+=' has-'+type;
+    html+='<div class="'+cls+'" data-month="'+mk+'">';
+    html+='<span class="d-num">'+(m+1)+'月</span>';
+    if(val>0)html+='<span class="d-'+(type==='income'?'in':'out')+'">'+fmtShort(val)+'</span>';
+    html+='</div>';
+  }
+  el.innerHTML=html;
+}
+function stepCal(dir){
+  if(state.statPeriod==='week'){
+    let base=new Date(state.calYear,state.calMonth,state.calDay||1);
+    base.setDate(base.getDate()+dir*7);
+    state.calYear=base.getFullYear();state.calMonth=base.getMonth();state.calDay=base.getDate();
+  }else if(state.statPeriod==='year'){
+    state.calYear+=dir;
+  }else{
+    state.calMonth+=dir;
+    if(state.calMonth<0){state.calMonth=11;state.calYear--}
+    if(state.calMonth>11){state.calMonth=0;state.calYear++}
+  }
+  renderStatCalendar();
 }
 
 function renderDonut(data,total){
@@ -2348,6 +2443,8 @@ function bindEvents(){
       this.classList.add('active');
       state.statPeriod=this.getAttribute('data-period');
       state.statDateRange=getStatRange(state.statPeriod);
+      const now=new Date();
+      state.calYear=now.getFullYear();state.calMonth=now.getMonth();state.calDay=now.getDate();
       const lbl=document.querySelector('#statDateFilterWrap .dt-label');
       if(lbl)lbl.textContent=state.statDateRange.label;
       renderStats();
@@ -2364,15 +2461,11 @@ function bindEvents(){
   // 统计页日历导航
   document.getElementById('statCalPrev').addEventListener('click',function(e){
     e.stopPropagation();
-    state.calMonth--;
-    if(state.calMonth<0){state.calMonth=11;state.calYear--}
-    renderStatCalendar();
+    stepCal(-1);
   });
   document.getElementById('statCalNext').addEventListener('click',function(e){
     e.stopPropagation();
-    state.calMonth++;
-    if(state.calMonth>11){state.calMonth=0;state.calYear++}
-    renderStatCalendar();
+    stepCal(1);
   });
 
   // 导入

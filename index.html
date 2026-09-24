@@ -262,6 +262,14 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
 .bill-note{text-align:center;font-size:11px;color:var(--text-muted);padding:14px}
 
 /* 统计页 */
+.stat-today{display:flex;background:var(--card);border-radius:var(--radius);padding:12px;margin-bottom:12px;box-shadow:var(--shadow);gap:8px}
+.stat-today .st-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}
+.stat-today .st-label{font-size:11px;color:var(--text-muted)}
+.stat-today .st-val{font-size:16px;font-weight:700;font-family:var(--num-font);color:var(--text);white-space:nowrap}
+.stat-today .st-val.out{color:var(--accent)}
+.stat-today .st-val.in{color:var(--income)}
+.stat-today .st-val.pos{color:var(--income)}
+.stat-today .st-val.neg{color:var(--accent)}
 .stat-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .stat-type-select{display:flex;align-items:center;gap:4px;font-size:16px;font-weight:700;cursor:pointer;padding:4px 8px;border-radius:8px}
 .stat-type-select:active{background:var(--border)}
@@ -499,6 +507,11 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
         <div class="stat-chart-toggle" id="chartToggle" title="切换视图">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
         </div>
+      </div>
+      <div class="stat-today" id="statToday">
+        <div class="st-item"><div class="st-label">今日支出</div><div class="st-val out" id="stTodayOut">¥0.00</div></div>
+        <div class="st-item"><div class="st-label">今日收入</div><div class="st-val in" id="stTodayIn">¥0.00</div></div>
+        <div class="st-item"><div class="st-label">今日结余</div><div class="st-val" id="stTodayBal">¥0.00</div></div>
       </div>
       <div class="period-tabs">
         <div class="period-tab active" data-period="week">周</div>
@@ -1284,8 +1297,28 @@ function renderStats(){
   document.getElementById('statTypeName').textContent=state.statType==='income'?'收入':'支出';
   document.getElementById('rankTitle').textContent=(state.statType==='income'?'收入':'支出')+'排行榜';
   renderStatFilterTags();
+  renderStatToday();
   renderChart();
   renderRank();
+}
+
+// 统计页今日收支汇总（当天实际收支 + 结余）
+function renderStatToday(){
+  const t=todayStr();
+  let out=0,inc=0;
+  const recs=state.records;
+  for(let i=0;i<recs.length;i++){
+    const r=recs[i];
+    if(r.date!==t)continue;
+    if(r.type==='expense')out+=r.amount;
+    else inc+=r.amount;
+  }
+  document.getElementById('stTodayOut').textContent='-¥'+fmt(out);
+  document.getElementById('stTodayIn').textContent='+¥'+fmt(inc);
+  const bal=Math.round((inc-out)*100)/100;
+  const bel=document.getElementById('stTodayBal');
+  bel.textContent=(bal>=0?'+':'')+fmt(bal);
+  bel.className='st-val'+(bal>=0?' pos':' neg');
 }
 
 function getPeriodRecords(){
@@ -1444,7 +1477,7 @@ function renderStatMonth(){
     if(val>0)cls+=' has-'+type;
     html+='<div class="'+cls+'" data-date="'+ds+'">';
     html+='<span class="d-num">'+d+'</span>';
-    if(val>0)html+='<span class="d-'+(type==='income'?'in':'out')+'">'+fmtShort(val)+'</span>';
+    if(val>0)html+='<span class="d-'+(type==='income'?'in':'out')+'">'+(type==='income'?'+':'-')+fmtShort(val)+'</span>';
     html+='</div>';
   }
   const totalCells=startWeekday-1+daysInMonth;
@@ -1492,7 +1525,7 @@ function renderStatWeek(){
     if(val>0)cls+=' has-'+type;
     html+='<div class="'+cls+'" data-date="'+ds+'">';
     html+='<span class="d-num">'+dt.getDate()+'</span>';
-    if(val>0)html+='<span class="d-'+(type==='income'?'in':'out')+'">'+fmtShort(val)+'</span>';
+    if(val>0)html+='<span class="d-'+(type==='income'?'in':'out')+'">'+(type==='income'?'+':'-')+fmtShort(val)+'</span>';
     html+='</div>';
   }
   el.innerHTML=html;
@@ -1521,7 +1554,7 @@ function renderStatYear(){
     if(val>0)cls+=' has-'+type;
     html+='<div class="'+cls+'" data-month="'+mk+'">';
     html+='<span class="d-num">'+(m+1)+'月</span>';
-    if(val>0)html+='<span class="d-'+(type==='income'?'in':'out')+'">'+fmtShort(val)+'</span>';
+    if(val>0)html+='<span class="d-'+(type==='income'?'in':'out')+'">'+(type==='income'?'+':'-')+fmtShort(val)+'</span>';
     html+='</div>';
   }
   el.innerHTML=html;

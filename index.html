@@ -273,9 +273,13 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
 .stat-today .st-val.pos{color:var(--income)}
 .stat-today .st-val.neg{color:var(--accent)}
 .stat-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.stat-type-select{display:flex;align-items:center;gap:4px;font-size:16px;font-weight:700;cursor:pointer;padding:4px 8px;border-radius:8px}
+.stat-type-select{position:relative;display:flex;align-items:center;gap:4px;font-size:16px;font-weight:700;cursor:pointer;padding:4px 8px;border-radius:8px}
 .stat-type-select:active{background:var(--border)}
 .stat-type-select svg{width:16px;height:16px;color:var(--text-muted)}
+.stat-type-dropdown{position:absolute;top:calc(100% + 4px);left:0;min-width:96px;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);z-index:30;padding:4px}
+.stat-type-option{padding:9px 12px;font-size:14px;font-weight:600;border-radius:8px;cursor:pointer;color:var(--text);white-space:nowrap}
+.stat-type-option:hover{background:var(--border)}
+.stat-type-option.active{background:var(--primary-bg);color:var(--primary)}
 .stat-chart-toggle{width:34px;height:34px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow);color:var(--text-secondary)}
 .stat-chart-toggle svg{width:18px;height:18px}
 
@@ -507,6 +511,11 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
         <div class="stat-type-select" id="statTypeSelect">
           <span id="statTypeName">支出</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          <div class="stat-type-dropdown" id="statTypeDropdown" style="display:none">
+            <div class="stat-type-option active" data-type="expense">支出</div>
+            <div class="stat-type-option" data-type="income">收入</div>
+            <div class="stat-type-option" data-type="balance">结余</div>
+          </div>
         </div>
         <div class="stat-chart-toggle" id="chartToggle" title="切换视图">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
@@ -1304,6 +1313,7 @@ function statTypeName(){return state.statType==='balance'?'结余':(state.statTy
 function renderStats(){
   document.getElementById('statTypeName').textContent=statTypeName();
   document.getElementById('rankTitle').textContent=statTypeName()+'排行榜';
+  document.querySelectorAll('.stat-type-option').forEach(o=>o.classList.toggle('active',o.getAttribute('data-type')===state.statType));
   renderStatFilterTags();
   renderStatSummary();
   renderChart();
@@ -2565,10 +2575,22 @@ function bindEvents(){
   });
 
   // 统计页
-  document.getElementById('statTypeSelect').addEventListener('click',function(){
-    state.statType=state.statType==='expense'?'income':(state.statType==='income'?'balance':'expense');
-    state.statCats=[];
-    renderStats();
+  const statTypeDropdown=document.getElementById('statTypeDropdown');
+  document.getElementById('statTypeSelect').addEventListener('click',function(e){
+    e.stopPropagation();
+    statTypeDropdown.style.display=statTypeDropdown.style.display==='block'?'none':'block';
+  });
+  document.querySelectorAll('.stat-type-option').forEach(o=>{
+    o.addEventListener('click',function(e){
+      e.stopPropagation();
+      state.statType=this.getAttribute('data-type');
+      state.statCats=[];
+      statTypeDropdown.style.display='none';
+      renderStats();
+    });
+  });
+  document.addEventListener('click',function(e){
+    if(!e.target.closest('#statTypeSelect'))statTypeDropdown.style.display='none';
   });
   document.querySelectorAll('.period-tab').forEach(t=>{
     t.addEventListener('click',function(){

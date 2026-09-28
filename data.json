@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastSync": "2026-09-24T14:49:34.859Z",
+  "lastSync": "2026-09-28T06:20:53.290Z",
   "records": [
     {
       "id": "mtcvwemxcces7",
@@ -29854,6 +29854,105 @@
       "date": "2026-09-24",
       "note": "",
       "createdAt": 1790229941148
+    },
+    {
+      "id": "muftjen2sofny",
+      "type": "expense",
+      "amount": 33,
+      "category": "food",
+      "date": "2026-09-25",
+      "note": "",
+      "createdAt": 1790271687135
+    },
+    {
+      "id": "muftjkf6qo5wj",
+      "type": "income",
+      "amount": 400,
+      "category": "custom_mtcvwu8vz8t7c",
+      "date": "2026-09-25",
+      "note": "",
+      "createdAt": 1790271694626
+    },
+    {
+      "id": "mugecduztj4yg",
+      "type": "expense",
+      "amount": 212.8,
+      "category": "custom_mugec9ow7l6n8",
+      "date": "2026-09-25",
+      "note": "",
+      "createdAt": 1790306631468
+    },
+    {
+      "id": "mugedthkuyiqe",
+      "type": "expense",
+      "amount": 262.8,
+      "category": "housing",
+      "date": "2026-09-25",
+      "note": "物业费",
+      "createdAt": 1790306698376
+    },
+    {
+      "id": "mugt6e7k5pnwe",
+      "type": "income",
+      "amount": 87.5,
+      "category": "custom_mtcvwu8vz8t7c",
+      "date": "2026-09-25",
+      "note": "",
+      "createdAt": 1790331546225
+    },
+    {
+      "id": "mugx197oxrpkr",
+      "type": "expense",
+      "amount": 200,
+      "category": "custom_mugx18knrehmu",
+      "date": "2026-09-25",
+      "note": "",
+      "createdAt": 1790338024932
+    },
+    {
+      "id": "mugybm5qm81qi",
+      "type": "expense",
+      "amount": 100,
+      "category": "custom_mtd9myf863hth",
+      "date": "2026-09-25",
+      "note": "",
+      "createdAt": 1790340187886
+    },
+    {
+      "id": "muic11037pahr",
+      "type": "expense",
+      "amount": 190,
+      "category": "custom_mtd9myf863hth",
+      "date": "2026-09-26",
+      "note": "",
+      "createdAt": 1790423674707
+    },
+    {
+      "id": "muic19q2vl6j8",
+      "type": "expense",
+      "amount": 103,
+      "category": "food",
+      "date": "2026-09-26",
+      "note": "",
+      "createdAt": 1790423686010
+    },
+    {
+      "id": "muioc1mymqv0q",
+      "type": "expense",
+      "amount": 234,
+      "category": "custom_mtd9myf863hth",
+      "date": "2026-09-27",
+      "note": "",
+      "createdAt": 1790444344138
+    },
+    {
+      "id": "muk1vq3sx937h",
+      "type": "expense",
+      "amount": 53,
+      "category": "food",
+      "date": "2026-09-28",
+      "note": "",
+      "createdAt": 1790527563496
     }
   ],
   "expenseCats": [
@@ -29925,6 +30024,20 @@
       "name": "旅游",
       "color": "#457B9D",
       "icon": "plane",
+      "custom": true
+    },
+    {
+      "id": "custom_mugec9ow7l6n8",
+      "name": "电费",
+      "color": "#457B9D",
+      "icon": "coin",
+      "custom": true
+    },
+    {
+      "id": "custom_mugx18knrehmu",
+      "name": "话费",
+      "color": "#40916C",
+      "icon": "coin",
       "custom": true
     }
   ],

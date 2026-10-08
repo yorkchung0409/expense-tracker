@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastSync": "2026-09-28T06:31:41.053Z",
+  "lastSync": "2026-10-08T02:17:39.744Z",
   "records": [
     {
       "id": "mtcvwemxcces7",
@@ -29962,6 +29962,195 @@
       "date": "2026-09-28",
       "note": "",
       "createdAt": 1790576471837
+    },
+    {
+      "id": "mukvds07n915y",
+      "type": "expense",
+      "amount": 19.9,
+      "category": "food",
+      "date": "2026-09-28",
+      "note": "",
+      "createdAt": 1790577114631
+    },
+    {
+      "id": "mul44sfjhzt7a",
+      "type": "income",
+      "amount": 30,
+      "category": "custom_mtcvwu8vz8t7c",
+      "date": "2026-09-28",
+      "note": "",
+      "createdAt": 1790591811824
+    },
+    {
+      "id": "mul8qrotqc5fp",
+      "type": "expense",
+      "amount": 125,
+      "category": "food",
+      "date": "2026-09-28",
+      "note": "",
+      "createdAt": 1790599555757
+    },
+    {
+      "id": "muminc7qlkuwp",
+      "type": "expense",
+      "amount": 288,
+      "category": "shopping",
+      "date": "2026-09-29",
+      "note": "剃须刀",
+      "createdAt": 1790676658070
+    },
+    {
+      "id": "musmm5tjmoziu",
+      "type": "expense",
+      "amount": 63.66,
+      "category": "food",
+      "date": "2026-10-03",
+      "note": "",
+      "createdAt": 1791046118647
+    },
+    {
+      "id": "musmmbv9vo49p",
+      "type": "expense",
+      "amount": 15,
+      "category": "transport",
+      "date": "2026-10-03",
+      "note": "",
+      "createdAt": 1791046126485
+    },
+    {
+      "id": "musmn6x0yjqp9",
+      "type": "expense",
+      "amount": 19.9,
+      "category": "food",
+      "date": "2026-10-02",
+      "note": "",
+      "createdAt": 1791046166724
+    },
+    {
+      "id": "musmnha05rka8",
+      "type": "expense",
+      "amount": 73,
+      "category": "food",
+      "date": "2026-10-01",
+      "note": "",
+      "createdAt": 1791046180152
+    },
+    {
+      "id": "musmnvcgftwi3",
+      "type": "income",
+      "amount": 640,
+      "category": "custom_mtcvwu8vz8t7c",
+      "date": "2026-10-02",
+      "note": "",
+      "createdAt": 1791046198384
+    },
+    {
+      "id": "musmo9rtzftr9",
+      "type": "expense",
+      "amount": 384,
+      "category": "custom_mtd9myf863hth",
+      "date": "2026-10-02",
+      "note": "",
+      "createdAt": 1791046217081
+    },
+    {
+      "id": "musmpz6b9amvu",
+      "type": "expense",
+      "amount": 200,
+      "category": "custom_mttxw3y2zdx8j",
+      "date": "2026-10-02",
+      "note": "",
+      "createdAt": 1791046296659
+    },
+    {
+      "id": "musmqhbkz8yvj",
+      "type": "expense",
+      "amount": 520,
+      "category": "food",
+      "date": "2026-10-03",
+      "note": "",
+      "createdAt": 1791046320176
+    },
+    {
+      "id": "musmqtwt98wds",
+      "type": "expense",
+      "amount": 190,
+      "category": "custom_mtd9myf863hth",
+      "date": "2026-10-03",
+      "note": "",
+      "createdAt": 1791046336493
+    },
+    {
+      "id": "musmrxdvhwjib",
+      "type": "expense",
+      "amount": 15,
+      "category": "transport",
+      "date": "2026-10-03",
+      "note": "",
+      "createdAt": 1791046387651
+    },
+    {
+      "id": "mutyq4gy4dyeg",
+      "type": "expense",
+      "amount": 78,
+      "category": "food",
+      "date": "2026-10-07",
+      "note": "",
+      "createdAt": 1791126925090
+    },
+    {
+      "id": "mutyq9x5p6il1",
+      "type": "expense",
+      "amount": 161,
+      "category": "custom_mtd9myf863hth",
+      "date": "2026-10-04",
+      "note": "",
+      "createdAt": 1791126932153
+    },
+    {
+      "id": "muum0jubofi7n",
+      "type": "expense",
+      "amount": 65,
+      "category": "shopping",
+      "date": "2026-10-04",
+      "note": "",
+      "createdAt": 1791166042739
+    },
+    {
+      "id": "muum0w3y0jcq1",
+      "type": "expense",
+      "amount": 67,
+      "category": "other",
+      "date": "2026-10-05",
+      "note": "游泳",
+      "createdAt": 1791166058638
+    },
+    {
+      "id": "muywolofspt98",
+      "type": "expense",
+      "amount": 79,
+      "category": "food",
+      "date": "2026-10-05",
+      "note": "",
+      "createdAt": 1791425825727
+    },
+    {
+      "id": "muywotzoe3r9r",
+      "type": "expense",
+      "amount": 31,
+      "category": "food",
+      "date": "2026-10-06",
+      "note": "",
+      "createdAt": 1791425836500
+    },
+    {
+      "id": "muywpa2v7mvk3",
+      "type": "expense",
+      "amount": 6,
+      "category": "food",
+      "date": "2026-10-08",
+      "note": "",
+      "createdAt": 1791425857351
     }
   ],
   "expenseCats": [

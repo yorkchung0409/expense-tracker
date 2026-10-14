@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastSync": "2026-10-08T02:17:39.744Z",
+  "lastSync": "2026-10-14T07:00:41.814Z",
   "records": [
     {
       "id": "mtcvwemxcces7",
@@ -30151,6 +30151,186 @@
       "date": "2026-10-08",
       "note": "",
       "createdAt": 1791425857351
+    },
+    {
+      "id": "mv08zc0apkqub",
+      "type": "expense",
+      "amount": 100,
+      "category": "custom_mtd9myf863hth",
+      "date": "2026-10-08",
+      "note": "",
+      "createdAt": 1791506947978
+    },
+    {
+      "id": "mv08znwt7vbaw",
+      "type": "expense",
+      "amount": 26,
+      "category": "custom_mtd9myf863hth",
+      "date": "2026-10-08",
+      "note": "",
+      "createdAt": 1791506963405
+    },
+    {
+      "id": "mv08zulasrxu1",
+      "type": "expense",
+      "amount": 55,
+      "category": "shopping",
+      "date": "2026-10-06",
+      "note": "",
+      "createdAt": 1791506972062
+    },
+    {
+      "id": "mv1qt5ai77477",
+      "type": "expense",
+      "amount": 6,
+      "category": "food",
+      "date": "2026-10-09",
+      "note": "",
+      "createdAt": 1791597358602
+    },
+    {
+      "id": "mv1qtb58w9dpx",
+      "type": "expense",
+      "amount": 13,
+      "category": "food",
+      "date": "2026-10-09",
+      "note": "",
+      "createdAt": 1791597366188
+    },
+    {
+      "id": "mv1qthfcgj23u",
+      "type": "expense",
+      "amount": 18,
+      "category": "transport",
+      "date": "2026-10-09",
+      "note": "",
+      "createdAt": 1791597374328
+    },
+    {
+      "id": "mv1qtpd8znx0u",
+      "type": "expense",
+      "amount": 150,
+      "category": "custom_mtd9myf863hth",
+      "date": "2026-10-09",
+      "note": "",
+      "createdAt": 1791597384620
+    },
+    {
+      "id": "mv1qtt7aapqqa",
+      "type": "expense",
+      "amount": 6,
+      "category": "food",
+      "date": "2026-10-10",
+      "note": "",
+      "createdAt": 1791597389590
+    },
+    {
+      "id": "mv1qu3vqpg3s6",
+      "type": "expense",
+      "amount": 50,
+      "category": "transport",
+      "date": "2026-10-08",
+      "note": "",
+      "createdAt": 1791597403430
+    },
+    {
+      "id": "mv3esqlz60tn7",
+      "type": "expense",
+      "amount": 24,
+      "category": "food",
+      "date": "2026-10-10",
+      "note": "",
+      "createdAt": 1791698116535
+    },
+    {
+      "id": "mv3eswq0230cj",
+      "type": "expense",
+      "amount": 13,
+      "category": "transport",
+      "date": "2026-10-11",
+      "note": "",
+      "createdAt": 1791698124456
+    },
+    {
+      "id": "mv3et1j66ryh2",
+      "type": "expense",
+      "amount": 12.5,
+      "category": "food",
+      "date": "2026-10-11",
+      "note": "",
+      "createdAt": 1791698130690
+    },
+    {
+      "id": "mv3orlh952uwo",
+      "type": "expense",
+      "amount": 50,
+      "category": "food",
+      "date": "2026-10-11",
+      "note": "",
+      "createdAt": 1791714859389
+    },
+    {
+      "id": "mv41smow2wn86",
+      "type": "expense",
+      "amount": 23,
+      "category": "food",
+      "date": "2026-10-11",
+      "note": "",
+      "createdAt": 1791736742624
+    },
+    {
+      "id": "mv41st1an6v1t",
+      "type": "expense",
+      "amount": 69,
+      "category": "custom_mtd9myf863hth",
+      "date": "2026-10-11",
+      "note": "",
+      "createdAt": 1791736750846
+    },
+    {
+      "id": "mv41sxqclc8e0",
+      "type": "income",
+      "amount": 108.5,
+      "category": "custom_mtcvwu8vz8t7c",
+      "date": "2026-10-12",
+      "note": "",
+      "createdAt": 1791736756932
+    },
+    {
+      "id": "mv7rexew6s6sf",
+      "type": "expense",
+      "amount": 23,
+      "category": "food",
+      "date": "2026-10-13",
+      "note": "",
+      "createdAt": 1791961171880
+    },
+    {
+      "id": "mv7rfzq3b9ilh",
+      "type": "expense",
+      "amount": 86,
+      "category": "food",
+      "date": "2026-10-14",
+      "note": "",
+      "createdAt": 1791961221531
+    },
+    {
+      "id": "mv7rg7e8l4ixh",
+      "type": "income",
+      "amount": 84,
+      "category": "custom_mtcvwu8vz8t7c",
+      "date": "2026-10-13",
+      "note": "",
+      "createdAt": 1791961231472
+    },
+    {
+      "id": "mv7rgcj1trljn",
+      "type": "expense",
+      "amount": 63.5,
+      "category": "custom_mtd9myf863hth",
+      "date": "2026-10-14",
+      "note": "",
+      "createdAt": 1791961238125
     }
   ],
   "expenseCats": [

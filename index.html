@@ -376,6 +376,14 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
 .modal-btn.cancel{background:var(--bg);color:var(--text-secondary)}
 .modal-btn.confirm{background:var(--primary);color:#fff}
 .modal-btn.danger{background:var(--accent);color:#fff}
+.action-sheet{background:var(--card);border-radius:16px 16px 0 0;width:100%;max-width:420px;padding:10px 0 calc(10px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .25s;box-shadow:0 -4px 24px rgba(0,0,0,.12)}
+.modal-overlay.show .action-sheet{transform:translateY(0)}
+.as-title{padding:12px 20px 8px;font-size:13px;color:var(--text-muted);text-align:center}
+.as-option{padding:14px 20px;font-size:15px;text-align:center;cursor:pointer;border-top:1px solid var(--border)}
+.as-option:active{background:var(--bg)}
+.as-option.danger{color:var(--accent);font-weight:500}
+.as-cancel{padding:14px 20px;font-size:15px;text-align:center;cursor:pointer;color:var(--text-secondary);border-top:8px solid var(--bg);font-weight:500}
+.as-cancel:active{background:var(--bg)}
 
 /* 新增分类 */
 .cat-form-group{margin-bottom:14px}
@@ -628,6 +636,15 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC"
       <button class="modal-btn cancel" id="catCancel">取消</button>
       <button class="modal-btn confirm" id="catSave">保存</button>
     </div>
+  </div>
+</div>
+
+<!-- 分类操作菜单 -->
+<div class="modal-overlay" id="actionSheet" style="align-items:flex-end">
+  <div class="action-sheet">
+    <div class="as-title" id="asTitle">分类操作</div>
+    <div class="as-list" id="asList"></div>
+    <div class="as-cancel" id="asCancel">取消</div>
   </div>
 </div>
 
@@ -1200,7 +1217,10 @@ function renderCategoryGrid(){
       clearTimeout(longTimer);
       longTimer=setTimeout(function(){
         longPressed=true;
-        showConfirm('删除分类','删除"'+catName+'"后，该分类的历史记录将归为"其他"。确定删除？',function(){deleteCategory(cid)});
+        showActionSheet('分类操作',[
+          {label:'编辑分类',cb:function(){openCatModal(getCatMap(state.recordType)[cid])}},
+          {label:'删除分类',danger:true,cb:function(){showConfirm('删除分类','删除"'+catName+'"后，该分类的历史记录将归为"其他"。确定删除？',function(){deleteCategory(cid)})}}
+        ]);
       },600);
     };
     o.addEventListener('touchstart',startLong,{passive:true});
@@ -1784,10 +1804,20 @@ function renderRank(){
 }
 
 // 新增分类
-function openCatModal(){
-  state.newCatIcon=state.recordType==='income'?'salary':'food';
-  state.newCatColor=COLORS[Math.floor(Math.random()*COLORS.length)];
-  document.getElementById('catNameInput').value='';
+function openCatModal(editCat){
+  const isEdit=editCat&&editCat.id;
+  state.editingCatId=isEdit?editCat.id:null;
+  if(isEdit){
+    state.newCatIcon=editCat.icon||'food';
+    state.newCatColor=editCat.color||COLORS[0];
+    document.getElementById('catNameInput').value=editCat.name||'';
+    document.getElementById('catModalTitle').textContent='编辑分类';
+  }else{
+    state.newCatIcon=state.recordType==='income'?'salary':'food';
+    state.newCatColor=COLORS[Math.floor(Math.random()*COLORS.length)];
+    document.getElementById('catNameInput').value='';
+    document.getElementById('catModalTitle').textContent='新增分类';
+  }
   renderIconGrid();
   renderColorRow();
   document.getElementById('catModal').classList.add('show');
@@ -1826,7 +1856,21 @@ function saveCategory(){
   const name=document.getElementById('catNameInput').value.trim();
   if(!name){showToast('请输入分类名称');return}
   const cats=getCats(state.recordType);
-  if(cats.find(c=>c.name===name)){showToast('分类名称已存在');return}
+  if(cats.find(c=>c.name===name&&c.id!==state.editingCatId)){showToast('分类名称已存在');return}
+  if(state.editingCatId){
+    const cat=cats.find(c=>c.id===state.editingCatId);
+    if(cat){
+      cat.name=name;
+      cat.color=state.newCatColor;
+      cat.icon=state.newCatIcon;
+      saveData();
+      document.getElementById('catModal').classList.remove('show');
+      state.editingCatId=null;
+      renderCategoryGrid();
+      showToast('分类已修改');
+    }
+    return;
+  }
   const newCat={id:'custom_'+genId(),name:name,color:state.newCatColor,icon:state.newCatIcon,custom:true};
   cats.push(newCat);
   state.selectedCategory=newCat.id;
@@ -1834,6 +1878,26 @@ function saveCategory(){
   document.getElementById('catModal').classList.remove('show');
   renderCategoryGrid();
   showToast('分类已添加');
+}
+
+// 操作菜单
+function showActionSheet(title,opts){
+  const el=document.getElementById('actionSheet');
+  document.getElementById('asTitle').textContent=title;
+  const list=document.getElementById('asList');
+  let html='';
+  (opts||[]).forEach(function(o,i){
+    html+='<div class="as-option'+(o.danger?' danger':'')+'" data-i="'+i+'">'+esc(o.label)+'</div>';
+  });
+  list.innerHTML=html;
+  list.querySelectorAll('.as-option').forEach(function(o){
+    o.addEventListener('click',function(){
+      el.classList.remove('show');
+      const item=opts[Number(this.getAttribute('data-i'))];
+      if(item&&item.cb)item.cb();
+    });
+  });
+  el.classList.add('show');
 }
 
 // 确认弹窗
@@ -2574,11 +2638,13 @@ function bindEvents(){
   });
 
   // 新增分类
-  document.getElementById('addCatBtn').addEventListener('click',openCatModal);
+  document.getElementById('addCatBtn').addEventListener('click',function(){openCatModal()});
   document.getElementById('catModalClose').addEventListener('click',()=>document.getElementById('catModal').classList.remove('show'));
   document.getElementById('catCancel').addEventListener('click',()=>document.getElementById('catModal').classList.remove('show'));
   document.getElementById('catSave').addEventListener('click',saveCategory);
   document.getElementById('catModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
+  document.getElementById('asCancel').addEventListener('click',()=>document.getElementById('actionSheet').classList.remove('show'));
+  document.getElementById('actionSheet').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
 
   // 确认弹窗
   document.getElementById('confirmClose').addEventListener('click',()=>{document.getElementById('confirmModal').classList.remove('show');confirmCallback=null});

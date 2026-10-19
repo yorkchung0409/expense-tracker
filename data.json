@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastSync": "2026-10-14T07:00:41.814Z",
+  "lastSync": "2026-10-19T15:35:20.854Z",
   "records": [
     {
       "id": "mtcvwemxcces7",
@@ -30331,6 +30331,231 @@
       "date": "2026-10-14",
       "note": "",
       "createdAt": 1791961238125
+    },
+    {
+      "id": "mv8ug4tyohcmq",
+      "type": "income",
+      "amount": 13,
+      "category": "custom_mtcvwu8vz8t7c",
+      "date": "2026-10-15",
+      "note": "",
+      "createdAt": 1792026733174
+    },
+    {
+      "id": "mv8w4mutnu1ds",
+      "type": "expense",
+      "amount": 260,
+      "category": "custom_mugec9ow7l6n8",
+      "date": "2026-10-15",
+      "note": "",
+      "createdAt": 1792029555893
+    },
+    {
+      "id": "mv8w4sj095urg",
+      "type": "expense",
+      "amount": 1660,
+      "category": "housing",
+      "date": "2026-10-15",
+      "note": "",
+      "createdAt": 1792029563244
+    },
+    {
+      "id": "mv8xzj790a3gd",
+      "type": "expense",
+      "amount": 52,
+      "category": "custom_mv8xzcjqabukn",
+      "date": "2026-10-15",
+      "note": "",
+      "createdAt": 1792032677109
+    },
+    {
+      "id": "mv9ciubjxm6xz",
+      "type": "income",
+      "amount": 15605,
+      "category": "salary",
+      "date": "2026-10-15",
+      "note": "",
+      "createdAt": 1792057092607
+    },
+    {
+      "id": "mvacunn6ak4kj",
+      "type": "expense",
+      "amount": 25,
+      "category": "food",
+      "date": "2026-10-14",
+      "note": "",
+      "createdAt": 1792118110002
+    },
+    {
+      "id": "mvacxc09eioui",
+      "type": "income",
+      "amount": 122.5,
+      "category": "custom_mtcvwu8vz8t7c",
+      "date": "2026-10-15",
+      "note": "",
+      "createdAt": 1792118234889
+    },
+    {
+      "id": "mvad1pmff9ht8",
+      "type": "expense",
+      "amount": 14,
+      "category": "food",
+      "date": "2026-10-16",
+      "note": "",
+      "createdAt": 1792118439159
+    },
+    {
+      "id": "mvawm21xxw6d4",
+      "type": "expense",
+      "amount": 312.5,
+      "category": "custom_mtd9myf863hth",
+      "date": "2026-10-16",
+      "note": "",
+      "createdAt": 1792151301093
+    },
+    {
+      "id": "mvawm8bg3j441",
+      "type": "expense",
+      "amount": 50,
+      "category": "transport",
+      "date": "2026-10-16",
+      "note": "",
+      "createdAt": 1792151309212
+    },
+    {
+      "id": "mvb8o0bq2bsn6",
+      "type": "expense",
+      "amount": 16,
+      "category": "food",
+      "date": "2026-10-17",
+      "note": "",
+      "createdAt": 1792171547558
+    },
+    {
+      "id": "mvb8o4ydc6ub7",
+      "type": "income",
+      "amount": 500,
+      "category": "custom_mtcvwu8vz8t7c",
+      "date": "2026-10-17",
+      "note": "",
+      "createdAt": 1792171553557
+    },
+    {
+      "id": "mvb8oakeqa2wi",
+      "type": "expense",
+      "amount": 15,
+      "category": "transport",
+      "date": "2026-10-17",
+      "note": "",
+      "createdAt": 1792171560830
+    },
+    {
+      "id": "mvbz9cjipnrg3",
+      "type": "expense",
+      "amount": 13,
+      "category": "food",
+      "date": "2026-10-17",
+      "note": "",
+      "createdAt": 1792216213182
+    },
+    {
+      "id": "mvc4257fev90y",
+      "type": "expense",
+      "amount": 29,
+      "category": "food",
+      "date": "2026-10-17",
+      "note": "",
+      "createdAt": 1792224275163
+    },
+    {
+      "id": "mvc42lrml86fj",
+      "type": "expense",
+      "amount": 25.5,
+      "category": "shopping",
+      "date": "2026-10-17",
+      "note": "",
+      "createdAt": 1792224296626
+    },
+    {
+      "id": "mvcm90uauc9pg",
+      "type": "expense",
+      "amount": 155,
+      "category": "food",
+      "date": "2026-10-18",
+      "note": "",
+      "createdAt": 1792254829186
+    },
+    {
+      "id": "mvcslujenyn56",
+      "type": "expense",
+      "amount": 160,
+      "category": "housing",
+      "date": "2026-10-18",
+      "note": "纸巾",
+      "createdAt": 1792265505242
+    },
+    {
+      "id": "mveoc02wc2obc",
+      "type": "expense",
+      "amount": 49,
+      "category": "food",
+      "date": "2026-10-18",
+      "note": "",
+      "createdAt": 1792379259752
+    },
+    {
+      "id": "mveoca508p1pg",
+      "type": "expense",
+      "amount": 13,
+      "category": "transport",
+      "date": "2026-10-19",
+      "note": "",
+      "createdAt": 1792379272788
+    },
+    {
+      "id": "mveyd2gdopdoq",
+      "type": "expense",
+      "amount": 6,
+      "category": "food",
+      "date": "2026-10-19",
+      "note": "",
+      "createdAt": 1792396105645
+    },
+    {
+      "id": "mveyd65ptt62w",
+      "type": "expense",
+      "amount": 29.6,
+      "category": "food",
+      "date": "2026-10-19",
+      "note": "",
+      "createdAt": 1792396110445
+    },
+    {
+      "id": "mvfezh1xudwox",
+      "type": "expense",
+      "amount": 28,
+      "category": "food",
+      "date": "2026-10-19",
+      "note": "",
+      "createdAt": 1792424024853
+    },
+    {
+      "id": "mvfezmp748tet",
+      "type": "expense",
+      "amount": 81.5,
+      "category": "custom_mtd9myf863hth",
+      "date": "2026-10-19",
+      "note": "",
+      "createdAt": 1792424032171
+    },
+    {
+      "id": "mvff0eec3urbg",
+      "type": "income",
+      "amount": 12.5,
+      "category": "custom_mtcvwu8vz8t7c",
+      "date": "2026-10-19",
+      "note": "",
+      "createdAt": 1792424068068
     }
   ],
   "expenseCats": [
@@ -30387,7 +30612,7 @@
       "id": "custom_mtd9myf863hth",
       "name": "德州",
       "color": "#2A9D8F",
-      "icon": "coin",
+      "icon": "poker",
       "custom": true
     },
     {
@@ -30408,7 +30633,7 @@
       "id": "custom_mugec9ow7l6n8",
       "name": "电费",
       "color": "#457B9D",
-      "icon": "coin",
+      "icon": "zap",
       "custom": true
     },
     {
@@ -30416,6 +30641,13 @@
       "name": "话费",
       "color": "#40916C",
       "icon": "coin",
+      "custom": true
+    },
+    {
+      "id": "custom_mv8xzcjqabukn",
+      "name": "水费",
+      "color": "#457B9D",
+      "icon": "droplet",
       "custom": true
     }
   ],
@@ -30452,7 +30684,7 @@
       "id": "custom_mtcvwu8vz8t7c",
       "name": "德州",
       "color": "#2A9D8F",
-      "icon": "coin",
+      "icon": "poker",
       "custom": true
     },
     {
